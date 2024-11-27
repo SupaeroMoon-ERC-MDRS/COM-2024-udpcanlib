@@ -6,6 +6,10 @@ Bitarray::Bitarray(const std::vector<uint8_t>& init){
     buf = init; 
 }
 
+Bitarray::Bitarray(const uint32_t size){
+    buf.resize(size); 
+}
+
 Bitarray::~Bitarray(){
     buf.clear();
 }
