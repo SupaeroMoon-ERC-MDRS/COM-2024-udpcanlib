@@ -4,14 +4,7 @@
 #include <mutex>
 #include <functional>
 
-#define CAN_INVALID_ID (uint8_t)0;
-
-#define CAN_E_SUCCESS (uint32_t)0;
-
-#define CAN_E_NOTUPDATED (uint32_t)1;
-
-#define CAN_E_WARNING_MAX = (uint32_t)1023;
-#define CAN_E_WRAPPER_NOT_INITIALIZED (uint32_t)1024;
+#include "definitions.h"
 
 namespace udpcan{
     namespace internal{
@@ -33,7 +26,7 @@ namespace udpcan{
 
         public:
             uint32_t access(std::function<void(T*)>& accessor){
-                std::unique_lock(mtx);
+                std::unique_lock lk(mtx);
 
                 if(!updated){return CAN_E_NOTUPDATED;}
                 if(id == CAN_INVALID_ID){return CAN_E_WRAPPER_NOT_INITIALIZED;}
@@ -44,7 +37,7 @@ namespace udpcan{
             }
 
             uint32_t update(std::function<void(T*)>& accessor){
-                std::unique_lock(mtx);
+                std::unique_lock lk(mtx);
 
                 if(id == CAN_INVALID_ID){return CAN_E_WRAPPER_NOT_INITIALIZED;}
 
@@ -58,7 +51,7 @@ namespace udpcan{
 
     };
 
-    MessageWrapper<internal::Marshalable>;
+    //MessageWrapper<internal::Marshalable>;
 
     #pragma pack(push,1)
     struct RemoteControl : public internal::Marshalable{
