@@ -15,6 +15,7 @@ set(INC_DIRS
 )
 
 set(SOURCES
+    ./src/fileop.cpp
     ./src/bitarray.cpp
     ./src/candatabase.cpp
     ./src/candesc.cpp

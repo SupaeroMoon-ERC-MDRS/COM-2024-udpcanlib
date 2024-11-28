@@ -3,6 +3,7 @@
 #define CAN_E_SUCCESS (uint32_t)0
 
 #define CAN_E_NOTUPDATED (uint32_t)1
+#define CAN_E_I_EOF (uint32_t)2
 
 #define CAN_E_WARNING_MAX = (uint32_t)1023
 #define CAN_E_FILE_OPEN_ERRNO (uint32_t)1024
@@ -10,6 +11,8 @@
 #define CAN_E_FILE_READ_ERRNO (uint32_t)1026
 #define CAN_E_FILE_NO_DBC_VERSION (uint32_t)1027
 #define CAN_E_FILE_DBC_VERSION_ERRNO (uint32_t)1028
+#define CAN_E_FILE_UNEXPECTED_EOF (uint32_t)1029
+#define CAN_E_FILE_NUM_READ_ERRNO (uint32_t)1030
 
 
 

@@ -28,8 +28,8 @@ namespace udpcan{
             uint32_t access(std::function<void(T*)>& accessor){
                 std::unique_lock lk(mtx);
 
-                if(!updated){return CAN_E_NOTUPDATED;}
-                if(id == CAN_INVALID_ID){return CAN_E_WRAPPER_NOT_INITIALIZED;}
+                if(!updated) return CAN_E_NOTUPDATED;
+                if(id == CAN_INVALID_ID) return CAN_E_WRAPPER_NOT_INITIALIZED;
 
                 accessor(message);
                 updated = false;
@@ -39,7 +39,7 @@ namespace udpcan{
             uint32_t update(std::function<void(T*)>& accessor){
                 std::unique_lock lk(mtx);
 
-                if(id == CAN_INVALID_ID){return CAN_E_WRAPPER_NOT_INITIALIZED;}
+                if(id == CAN_INVALID_ID) return CAN_E_WRAPPER_NOT_INITIALIZED;
 
                 accessor(message);
                 updated = true;

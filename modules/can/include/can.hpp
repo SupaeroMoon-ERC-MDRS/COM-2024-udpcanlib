@@ -7,7 +7,16 @@
 #include "message_definitions.hpp"
 
 namespace udpcan{
-    namespace internal{
+    namespace internal{     
+
+        bool isValidString(const char c);
+        uint32_t openRead(const std::string& fn, uint64_t& end, std::ifstream& in);
+        std::string readUntil(std::ifstream& in, const uint64_t eof, const char delim);
+        uint32_t seekUntil(std::ifstream& in, const uint64_t eof, const std::string& pattern);
+        uint32_t readNextNumeric(std::ifstream& in, const uint64_t eof, uint32_t& value);
+        uint32_t readNextFloating(std::ifstream& in, const uint64_t eof, float& value);
+        uint32_t readNextString(std::ifstream& in, const uint64_t eof, std::string& value);
+
 
         struct Bitarray{
             private:
@@ -40,10 +49,11 @@ namespace udpcan{
             public:
                 std::string name;
 
-                CanSignalDesc(uint32_t message_length);
+                CanSignalDesc();
+                CanSignalDesc(const uint32_t message_length);
                 ~CanSignalDesc();
 
-                uint32_t parse(const std::string& line, const uint32_t message_lenght);
+                uint32_t parse(std::ifstream& in, const uint64_t eof);
 
                 template<typename NumType32>
                 uint32_t decode(const Bitarray& message_payload_bits, NumType32 out) const;
@@ -59,11 +69,12 @@ namespace udpcan{
             public:
                 uint8_t id;
                 uint32_t message_length;
+                std::string name;
 
                 CanMessageDesc();
                 ~CanMessageDesc();
                 
-                uint32_t parse(const std::string& lines);
+                uint32_t parse(std::ifstream& in, const uint64_t eof);
 
                 uint32_t decode(const Bitarray& message_payload_bits, std::map<std::string, int32_t>& out_int, std::map<std::string, float>& out_float) const;
                 uint32_t encode(const std::map<std::string, int32_t>& int_values, const std::map<std::string, float>& float_values, Bitarray& out) const;
@@ -74,7 +85,6 @@ namespace udpcan{
                 uint16_t dbc_version;
                 std::map<uint8_t, CanMessageDesc> messages;
 
-                uint32_t read(const std::string& fn, uint64_t& end, std::ifstream& in) const;
                 uint32_t validateDBCVersion(const std::string& v);
 
             public:

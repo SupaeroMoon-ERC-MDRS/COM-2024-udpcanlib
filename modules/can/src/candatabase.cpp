@@ -10,28 +10,6 @@ CanDatabase::~CanDatabase(){
     messages.clear();
 }
 
-uint32_t CanDatabase::read(const std::string& fn, uint64_t& end, std::ifstream& in) const{
-    try{
-        in = std::ifstream(fn, std::ios::ate | std::ios::binary);
-
-        if(!in.is_open()){
-            return CAN_E_FILE_OPEN_ERRNO;
-        }
-
-        if(!in.good()){
-            in.close();
-            return CAN_E_FILE_FS_MALFORM;
-        }
-
-        end = in.tellg();
-        in.seekg(std::ios::beg);
-        return CAN_E_SUCCESS;
-    }
-    catch(...){
-        return CAN_E_FILE_READ_ERRNO;
-    }
-}
-
 uint32_t CanDatabase::validateDBCVersion(const std::string& v){
     if(std::string(v.cbegin(), v.cbegin() + 7) != std::string("VERSION")){
         return CAN_E_FILE_NO_DBC_VERSION;
@@ -52,9 +30,7 @@ uint32_t CanDatabase::validateDBCVersion(const std::string& v){
         }
     }
 
-    if(beg >= end){
-        return CAN_E_FILE_NO_DBC_VERSION;
-    }
+    if(beg >= end) return CAN_E_FILE_NO_DBC_VERSION;
 
     try{
         dbc_version = std::stoi(std::string(v.cbegin() + beg, v.cbegin() + end));
@@ -69,21 +45,26 @@ uint32_t CanDatabase::parse(const std::string& fn){
     uint64_t eof;
     std::ifstream in;
 
-    uint32_t res = read(fn, eof, in);
-    if(res != CAN_E_SUCCESS){
-        return res;
-    }
-
-    std::string version_str;
-    version_str.resize(eof);
-    in.getline(&version_str[0], eof, '\n');
+    uint32_t res = openRead(fn, eof, in);
+    if(res != CAN_E_SUCCESS) return res;
+    
+    std::string version_str = readUntil(in, eof, '\n');
     res = validateDBCVersion(std::string(version_str.data()));
-    if(res != CAN_E_SUCCESS){
-        return res;
-    }
+    if(res != CAN_E_SUCCESS) return res;
     version_str.clear();
 
-    
+    while(true){
+        res = seekUntil(in, eof, "BO_");
+        if(res != CAN_E_SUCCESS){
+            if(messages.empty()) return CAN_E_FILE_UNEXPECTED_EOF;
+            return CAN_E_SUCCESS;
+        }
+
+        CanMessageDesc desc;
+        res = desc.parse(in, eof);
+        if(res != CAN_E_SUCCESS) return res;
+        messages[desc.id] = desc;
+    }
 
     in.close();
     return CAN_E_SUCCESS;
