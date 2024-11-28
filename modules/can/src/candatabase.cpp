@@ -45,12 +45,11 @@ uint32_t CanDatabase::parse(const std::string& fn){
     uint64_t eof;
     std::ifstream in;
 
-    uint32_t res = openRead(fn, eof, in);
-    if(res != CAN_E_SUCCESS) return res;
+    uint32_t res;
+    CAN_E_FW_IF_ERR(openRead(fn, eof, in))
     
     std::string version_str = readUntil(in, eof, '\n');
-    res = validateDBCVersion(std::string(version_str.data()));
-    if(res != CAN_E_SUCCESS) return res;
+    CAN_E_FW_IF_ERR(validateDBCVersion(std::string(version_str.data())))
     version_str.clear();
 
     while(true){
@@ -61,8 +60,7 @@ uint32_t CanDatabase::parse(const std::string& fn){
         }
 
         CanMessageDesc desc;
-        res = desc.parse(in, eof);
-        if(res != CAN_E_SUCCESS) return res;
+        CAN_E_FW_IF_ERR(desc.parse(in, eof))
         messages[desc.id] = desc;
     }
 

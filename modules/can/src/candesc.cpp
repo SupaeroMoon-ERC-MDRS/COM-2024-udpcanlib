@@ -12,12 +12,11 @@ CanMessageDesc::~CanMessageDesc(){
 
 uint32_t CanMessageDesc::parse(std::ifstream& in, const uint64_t eof){
     uint32_t tmp;
-    uint32_t res = readNextNumeric(in, eof, tmp);
-    if(res != CAN_E_SUCCESS) return res;
+    uint32_t res;    
+    CAN_E_FW_IF_ERR(readNextNumeric(in, eof, tmp))
     id = (uint8_t)tmp;
-
-    res = readNextString(in, eof, name);
-    if(res != CAN_E_SUCCESS) return res;
+    
+    CAN_E_FW_IF_ERR(readNextString(in, eof, name))
     
     res = readNextNumeric(in, eof, message_length);
     if(res != CAN_E_SUCCESS) return res;
@@ -38,8 +37,8 @@ uint32_t CanMessageDesc::parse(std::ifstream& in, const uint64_t eof){
         }
 
         CanSignalDesc desc(message_length);
-        res = desc.parse(in, msg_eof);
-        if(res != CAN_E_SUCCESS) return res;
+        CAN_E_FW_IF_ERR(desc.parse(in, msg_eof))
+        
         signals[desc.name] = desc;
     }
 }
@@ -62,31 +61,20 @@ CanSignalDesc::~CanSignalDesc(){
 uint32_t CanSignalDesc::parse(std::ifstream& in, const uint64_t eof){
     in.seekg((uint64_t)in.tellg() + 3u);
     
-    uint32_t res = readNextString(in, eof, name);
-    if(res != CAN_E_SUCCESS) return res;
+    uint32_t res;
+    CAN_E_FW_IF_ERR(readNextString(in, eof, name))
 
     uint32_t start;
     uint32_t length;
     uint32_t endian;
     std::string sign;
 
-    res = readNextNumeric(in, eof, start);
-    if(res != CAN_E_SUCCESS) return res;
-
-    res = readNextNumeric(in, eof, length);
-    if(res != CAN_E_SUCCESS) return res;
-
-    res = readNextNumeric(in, eof, endian);
-    if(res != CAN_E_SUCCESS) return res;
-
-    res = readNextString(in, eof, sign);
-    if(res != CAN_E_SUCCESS) return res;
-
-    res = readNextFloating(in, eof, scale);
-    if(res != CAN_E_SUCCESS) return res;
-
-    res = readNextFloating(in, eof, offset);
-    if(res != CAN_E_SUCCESS) return res;
+    CAN_E_FW_IF_ERR(readNextNumeric(in, eof, start))
+    CAN_E_FW_IF_ERR(readNextNumeric(in, eof, length))
+    CAN_E_FW_IF_ERR(readNextNumeric(in, eof, endian))
+    CAN_E_FW_IF_ERR(readNextString(in, eof, sign))
+    CAN_E_FW_IF_ERR(readNextFloating(in, eof, scale))
+    CAN_E_FW_IF_ERR(readNextFloating(in, eof, offset))
 
     shift = start;
     // create mask, at first lets not mess with endian and sign

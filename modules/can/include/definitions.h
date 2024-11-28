@@ -17,3 +17,5 @@
 
 
 #define CAN_E_WRAPPER_NOT_INITIALIZED (uint32_t)1026
+
+#define CAN_E_FW_IF_ERR(func) {res = func; if(res != CAN_E_SUCCESS) return res;}
