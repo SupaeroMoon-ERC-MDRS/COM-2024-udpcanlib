@@ -22,8 +22,8 @@ namespace udpcan{
             private:
                 std::vector<uint8_t> buf;
             public:
-                Bitarray(const std::vector<uint8_t>& init);
                 Bitarray(const uint32_t size);
+                Bitarray(const std::vector<uint8_t>& init);
                 ~Bitarray();
                 Bitarray operator&(const Bitarray& rhs) const;
                 Bitarray operator|(const Bitarray& rhs) const;
@@ -33,10 +33,30 @@ namespace udpcan{
                 Bitarray& operator|=(const Bitarray& rhs);
                 Bitarray& operator>>=(const uint32_t rhs);
 
+                Bitarray& set(const uint32_t start, const uint32_t length);
+                uint32_t size() const;
+
                 template<typename IntType>
                 IntType as() const;
 
                 std::vector<uint8_t> get() const;
+        };
+
+        enum ENumType64{
+            UINT = 0,
+            INT,
+            FLOAT,
+        };
+
+        enum EIntType{
+            U8 = 0,
+            U16,
+            U32,
+            U64,
+            I8,
+            I16,
+            I32,
+            I64,
         };
 
         class CanSignalDesc{
@@ -46,7 +66,12 @@ namespace udpcan{
                 float scale;
                 float offset;
 
+                static ENumType64 determineNumType64(const std::string& sign, const float scale, const float offset);
+                static EIntType determineIntType(const std::string& sign, const uint32_t length);
+
             public:
+                ENumType64 num_type64_id;
+                EIntType int_type_id;
                 std::string name;
 
                 CanSignalDesc();
@@ -55,11 +80,11 @@ namespace udpcan{
 
                 uint32_t parse(std::ifstream& in, const uint64_t eof);
 
-                template<typename NumType32>
-                uint32_t decode(const Bitarray& message_payload_bits, NumType32 out) const;
+                template<typename NumType64>
+                uint32_t decode(const Bitarray& message_payload_bits, NumType64& out) const;
 
-                template<typename NumType32>
-                uint32_t encode(const NumType32 num, const uint32_t message_lenght, Bitarray& out) const;
+                template<typename NumType64>
+                uint32_t encode(const NumType64 num, const uint32_t message_lenght, Bitarray& out) const;
         };
 
         class CanMessageDesc{
@@ -76,8 +101,8 @@ namespace udpcan{
                 
                 uint32_t parse(std::ifstream& in, const uint64_t eof);
 
-                uint32_t decode(const Bitarray& message_payload_bits, std::map<std::string, int32_t>& out_int, std::map<std::string, float>& out_float) const;
-                uint32_t encode(const std::map<std::string, int32_t>& int_values, const std::map<std::string, float>& float_values, Bitarray& out) const;
+                uint32_t decode(const Bitarray& message_payload_bits, std::map<std::string, int64_t>& out_int, std::map<std::string, float>& out_float) const;
+                uint32_t encode(const std::map<std::string, int64_t>& int_values, const std::map<std::string, float>& float_values, Bitarray& out) const;
         };
 
         class CanDatabase{
@@ -93,8 +118,8 @@ namespace udpcan{
 
                 uint32_t parse(const std::string& fn);
                 
-                uint32_t decode(const Bitarray& message_all_bits, std::map<std::string, int32_t>& out_int, std::map<std::string, float>& out_float) const;
-                uint32_t encode(const uint8_t id, const std::map<std::string, int32_t>& int_values, const std::map<std::string, float>& float_values, Bitarray& all_out) const;
+                uint32_t decode(const Bitarray& message_all_bits, std::map<std::string, int64_t>& out_int, std::map<std::string, float>& out_float) const;
+                uint32_t encode(const uint8_t id, const std::map<std::string, int64_t>& int_values, const std::map<std::string, float>& float_values, Bitarray& all_out) const;
         };
     };
 };

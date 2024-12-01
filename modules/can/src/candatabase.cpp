@@ -67,3 +67,34 @@ uint32_t CanDatabase::parse(const std::string& fn){
     in.close();
     return CAN_E_SUCCESS;
 }
+
+uint32_t CanDatabase::decode(const Bitarray& message_all_bits, std::map<std::string, int64_t>& out_int, std::map<std::string, float>& out_float) const{
+    std::vector<uint8_t> bytes = message_all_bits.get();
+    uint32_t pos = 0;
+    out_int.clear();
+    out_float.clear();
+
+    while(pos + 4u < bytes.size()){ // 2 dbc version 1 msg id +1 min msg size = 4u
+        uint16_t msg_version = *(uint16_t*)(bytes.data() + pos);
+        if(msg_version != dbc_version){
+            return CAN_E_WRONG_DBC_VERSION;
+        }
+        pos += 2;
+        
+        uint8_t msg_id = bytes[pos];
+        if(messages.find(msg_id) == messages.cend()){
+            return CAN_E_UNKNOWN_MSG_ID;
+        }
+        pos += 1;
+
+        uint32_t msg_size = messages.at(msg_id).message_length;
+        if(pos + msg_size < bytes.size()){
+            return CAN_E_PARTIAL_MSG;
+        }
+
+        Bitarray msg_payload = Bitarray(std::vector<uint8_t>(bytes.cbegin() + pos, bytes.cbegin() + pos + msg_size));
+        messages.at(msg_id).decode(msg_payload, out_int, out_float);
+        pos += msg_size;
+    }
+    return CAN_E_SUCCESS;
+}

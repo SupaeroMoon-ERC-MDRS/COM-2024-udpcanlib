@@ -2,12 +2,12 @@
 
 using namespace udpcan::internal;
 
-Bitarray::Bitarray(const std::vector<uint8_t>& init){
-    buf = init; 
-}
-
 Bitarray::Bitarray(const uint32_t size){
     buf.resize(size); 
+}
+
+Bitarray::Bitarray(const std::vector<uint8_t>& init){
+    buf = init; 
 }
 
 Bitarray::~Bitarray(){
@@ -94,6 +94,20 @@ Bitarray& Bitarray::operator>>=(const uint32_t rhs){
     }
 
     return *this;
+}
+
+Bitarray& Bitarray::set(const uint32_t start, const uint32_t length){
+    for(uint32_t pos = start; pos < start + length; pos++){
+        uint32_t b = pos / 8u;
+        uint32_t ib = pos % 8u;
+
+        buf[b] |= (uint8_t)std::pow(2, ib);
+    }
+    return *this;
+}
+
+uint32_t Bitarray::size() const{
+    return buf.size();
 }
 
 std::vector<uint8_t> Bitarray::get() const {

@@ -6,6 +6,8 @@
 #define CAN_E_I_EOF (uint32_t)2
 
 #define CAN_E_WARNING_MAX = (uint32_t)1023
+
+/// Returned from CanDatabase::parse
 #define CAN_E_FILE_OPEN_ERRNO (uint32_t)1024
 #define CAN_E_FILE_FS_MALFORM (uint32_t)1025
 #define CAN_E_FILE_READ_ERRNO (uint32_t)1026
@@ -13,6 +15,12 @@
 #define CAN_E_FILE_DBC_VERSION_ERRNO (uint32_t)1028
 #define CAN_E_FILE_UNEXPECTED_EOF (uint32_t)1029
 #define CAN_E_FILE_NUM_READ_ERRNO (uint32_t)1030
+#define CAN_E_SIGNAL_POS_OB (uint32_t)1031
+
+/// Returned from CanDatabase::decode
+#define CAN_E_WRONG_DBC_VERSION (uint32_t)1032
+#define CAN_E_UNKNOWN_MSG_ID (uint32_t)1033
+#define CAN_E_PARTIAL_MSG (uint32_t)1034
 
 
 
