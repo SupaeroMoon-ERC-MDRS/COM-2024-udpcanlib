@@ -4,7 +4,8 @@
 #include <algorithm>
 #include <cmath>
 #include <fstream>
-#include "message_definitions.hpp"
+#include <vector>
+#include "definitions.h"
 
 namespace udpcan{
     namespace internal{     
@@ -107,12 +108,13 @@ namespace udpcan{
 
         class CanDatabase{
             private:
-                uint16_t dbc_version;
                 std::map<uint8_t, CanMessageDesc> messages;
 
                 uint32_t validateDBCVersion(const std::string& v);
 
             public:
+                uint16_t dbc_version;
+                
                 CanDatabase();
                 ~CanDatabase();
 

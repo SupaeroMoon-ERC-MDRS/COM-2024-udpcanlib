@@ -1,5 +1,10 @@
+#include <thread>
+
 #include "net.hpp"
 #include "can.hpp"
+#include "message_definitions.hpp"
+
+#define BURN_IN true
 
 namespace udpcan{
 
@@ -11,43 +16,31 @@ namespace udpcan{
             internal::CanDatabase database;
             internal::UDP udp;
 
+		    std::thread thr;
+            std::mutex thr_mtx;
+            bool stop_thr;
+
+            void thread();
+
         public:
-            NetworkHandler();
-            ~NetworkHandler();
+            NetworkHandler(){};
+            ~NetworkHandler(){};
 
-            uint32_t parse(const std::string& fn) {
-                return database.parse(fn);
-            }
+            uint32_t parse(const std::string& fn);
 
-            uint32_t init(){
-                return udp.init();
-            }
-            uint32_t reset(){
-                return udp.reset();
-            }
-            uint32_t close(){
-                return udp.close();
-            }
+            uint32_t init();
+            uint32_t reset();
+            uint32_t close();
 
-            uint32_t start(); // thread
+            uint32_t start();
+            uint32_t stop();
 
             template<typename T>
-            MessageWrapper<T>* get(){
-                if(std::is_same<T,RemoteControl>::value){
-                    return &remote_msg;
-                }
-            }
+            MessageWrapper<T>* get();
 
             template<typename T>
-            uint32_t push(){
-                if(std::is_same<T,RemoteControl>::value){
-                    // set updated to false
-                    // udp.push(internal::CanMsgBytes of remotemsg)
-                }
-            }
+            uint32_t push();
 
-            uint32_t flush(){
-                udp.flush();
-            }
+            uint32_t flush();
     };
 };

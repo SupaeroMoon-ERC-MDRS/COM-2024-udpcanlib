@@ -4,6 +4,8 @@
 
 #define CAN_E_NOTUPDATED (uint32_t)1
 #define CAN_E_I_EOF (uint32_t)2
+#define CAN_E_I_NO_SUCH_MSG (uint32_t)3
+#define CAN_E_THREAD_ALREADY_RUNNING (uint32_t)4
 
 #define CAN_E_WARNING_MAX = (uint32_t)1023
 
@@ -24,6 +26,8 @@
 
 
 
-#define CAN_E_WRAPPER_NOT_INITIALIZED (uint32_t)1026
+#define CAN_E_WRAPPER_NOT_INITIALIZED (uint32_t)1040
+
+#define CAN_E_THREAD_LAUNCH_FAIL (uint32_t)2000
 
 #define CAN_E_FW_IF_ERR(func) {res = func; if(res != CAN_E_SUCCESS) return res;}

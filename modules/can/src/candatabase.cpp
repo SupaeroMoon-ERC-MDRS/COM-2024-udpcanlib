@@ -2,7 +2,7 @@
 
 using namespace udpcan::internal;
 
-CanDatabase::CanDatabase():dbc_version(0),messages({}){
+CanDatabase::CanDatabase():messages({}),dbc_version(0){
 
 }
 

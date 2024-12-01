@@ -17,9 +17,7 @@ uint32_t CanMessageDesc::parse(std::ifstream& in, const uint64_t eof){
     id = (uint8_t)tmp;
     
     CAN_E_FW_IF_ERR(readNextString(in, eof, name))
-    
-    res = readNextNumeric(in, eof, message_length);
-    if(res != CAN_E_SUCCESS) return res;
+    CAN_E_FW_IF_ERR(readNextNumeric(in, eof, message_length))
 
     uint64_t pos = in.tellg();
     uint64_t msg_eof = eof;
