@@ -7,9 +7,9 @@ namespace udpcan{
 
         struct CanMsgBytes{
             uint8_t id;
-            std::vector<uint8_t> bytes;
+            std::vector<uint8_t> all_bytes;
 
-            CanMsgBytes(const uint8_t id, const std::vector<uint8_t> bytes);
+            CanMsgBytes(const uint8_t id, const std::vector<uint8_t> all_bytes);
             ~CanMsgBytes();
         };
 

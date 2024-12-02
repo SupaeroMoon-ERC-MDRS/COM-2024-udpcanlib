@@ -40,24 +40,18 @@ uint32_t CanMessageDesc::parse(std::ifstream& in, const uint64_t eof){
     }
 }
 
-uint32_t CanMessageDesc::decode(const Bitarray& message_payload_bits, std::map<std::string, int64_t>& out_int, std::map<std::string, float>& out_float) const{
+uint32_t CanMessageDesc::decode(const Bitarray& message_payload_bits, std::map<std::string, std::any>& out) const{
     uint32_t res = CAN_E_SUCCESS;
     for(const std::pair<std::string, CanSignalDesc> sig : signals){
-        if(sig.second.num_type64_id == ENumType64::FLOAT){
-            float v = 0;
-            CAN_E_FW_IF_ERR(sig.second.decode(message_payload_bits, v))
-            out_float[sig.first] = v;
-        }
-        else if(sig.second.num_type64_id == ENumType64::UINT){
-            uint64_t v = 0;
-            CAN_E_FW_IF_ERR(sig.second.decode(message_payload_bits, v))
-            out_int[sig.first] = (int64_t)v;
-        }
-        else if(sig.second.num_type64_id == ENumType64::INT){
-            int64_t v = 0;
-            CAN_E_FW_IF_ERR(sig.second.decode(message_payload_bits, v))
-            out_int[sig.first] = v;
-        }
+        DECODE_SIG(float, NF32)
+        DECODE_SIG(uint8_t, NU8)
+        DECODE_SIG(uint16_t, NU16)
+        DECODE_SIG(uint32_t, NU32)
+        DECODE_SIG(uint64_t, NU64)
+        DECODE_SIG(int8_t, NI8)
+        DECODE_SIG(int16_t, NI16)
+        DECODE_SIG(int32_t, NI32)
+        DECODE_SIG(int64_t, NI64)
     }
     return res;
 }
@@ -65,12 +59,12 @@ uint32_t CanMessageDesc::decode(const Bitarray& message_payload_bits, std::map<s
 //////////////////////////////////////////////////////////////////////
 
 CanSignalDesc::CanSignalDesc()
-:mask(Bitarray({})),shift(0),scale(0),offset(0),num_type64_id(ENumType64::UINT),int_type_id(EIntType::U32),name(""){
+:mask(Bitarray({})),shift(0),scale(0),offset(0),num_type64_id(ENumType::NU8),int_type_id(EIntType::U32),name(""){
 
 }
 
 CanSignalDesc::CanSignalDesc(const uint32_t message_length)
-:mask(Bitarray(message_length)),shift(0),scale(0),offset(0),num_type64_id(ENumType64::UINT),int_type_id(EIntType::U32),name(""){
+:mask(Bitarray(message_length)),shift(0),scale(0),offset(0),num_type64_id(ENumType::NU8),int_type_id(EIntType::U32),name(""){
 
 }
 
@@ -78,14 +72,33 @@ CanSignalDesc::~CanSignalDesc(){
     name.clear();
 }
 
-ENumType64 CanSignalDesc::determineNumType64(const std::string& sign, const float scale, const float offset){
+ENumType CanSignalDesc::determineNumType(const std::string& sign, const uint32_t length, const float scale, const float offset){
     if(std::abs(scale - int32_t(scale)) > 1e-5 || std::abs(offset - int32_t(offset)) > 1e-5){
-        return ENumType64::FLOAT;
+        return ENumType::NF32;
     }
-    if(scale < 0 || offset < 0){
-        return ENumType64::INT;
+
+    if(sign == "+"){
+        uint64_t critical_1 = (uint64_t)(std::pow(2, length) * scale + offset);
+        uint64_t critical_2 = (uint64_t)(offset);
+
+        uint32_t bitreq = std::max(std::log2(critical_1), std::log2(critical_2));
+        uint32_t reqlen = std::ceil(bitreq / 8.f) * 8;
+        if(reqlen == 8){
+            return ENumType::NU8;
+        }
+        else if(reqlen == 16){
+            return ENumType::NU16;
+        }
+        else if(reqlen == 32){
+            return ENumType::NU32;
+        }
+        else{
+            return ENumType::NU64;
+        }
     }
-    return ENumType64::UINT;
+    else{
+        throw std::logic_error("not yet");
+    }
 }
 
 EIntType CanSignalDesc::determineIntType(const std::string& sign, const uint32_t length){
@@ -127,8 +140,8 @@ uint32_t CanSignalDesc::parse(std::ifstream& in, const uint64_t eof){
 
     mask.set(shift, length);
 
-    num_type64_id = determineNumType64(sign, scale, offset);
     int_type_id = determineIntType(sign, length);
+    num_type64_id = determineNumType(sign, length, scale, offset);
     return CAN_E_SUCCESS;
 }
 

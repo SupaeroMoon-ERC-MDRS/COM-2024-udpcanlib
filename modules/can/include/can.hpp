@@ -5,6 +5,8 @@
 #include <cmath>
 #include <fstream>
 #include <vector>
+#include <cstdint>
+#include <any>
 #include "definitions.h"
 
 namespace udpcan{
@@ -43,10 +45,16 @@ namespace udpcan{
                 std::vector<uint8_t> get() const;
         };
 
-        enum ENumType64{
-            UINT = 0,
-            INT,
-            FLOAT,
+        enum ENumType{
+            NU8 = 0,
+            NU16,
+            NU32,
+            NU64,
+            NI8,
+            NI16,
+            NI32,
+            NI64,
+            NF32
         };
 
         enum EIntType{
@@ -67,11 +75,11 @@ namespace udpcan{
                 float scale;
                 float offset;
 
-                static ENumType64 determineNumType64(const std::string& sign, const float scale, const float offset);
+                static ENumType determineNumType(const std::string& sign, const uint32_t length, const float scale, const float offset);
                 static EIntType determineIntType(const std::string& sign, const uint32_t length);
 
             public:
-                ENumType64 num_type64_id;
+                ENumType num_type64_id;
                 EIntType int_type_id;
                 std::string name;
 
@@ -102,8 +110,8 @@ namespace udpcan{
                 
                 uint32_t parse(std::ifstream& in, const uint64_t eof);
 
-                uint32_t decode(const Bitarray& message_payload_bits, std::map<std::string, int64_t>& out_int, std::map<std::string, float>& out_float) const;
-                uint32_t encode(const std::map<std::string, int64_t>& int_values, const std::map<std::string, float>& float_values, Bitarray& out) const;
+                uint32_t decode(const Bitarray& message_payload_bits, std::map<std::string, std::any>& out) const;
+                uint32_t encode(const std::map<std::string, std::any>& in, Bitarray& out) const;
         };
 
         class CanDatabase{
@@ -120,8 +128,8 @@ namespace udpcan{
 
                 uint32_t parse(const std::string& fn);
                 
-                uint32_t decode(const Bitarray& message_all_bits, std::map<std::string, int64_t>& out_int, std::map<std::string, float>& out_float) const;
-                uint32_t encode(const uint8_t id, const std::map<std::string, int64_t>& int_values, const std::map<std::string, float>& float_values, Bitarray& all_out) const;
+                uint32_t decode(const Bitarray& message_all_bits, std::map<std::string, std::any>& out) const;
+                uint32_t encode(const uint8_t id, const std::map<std::string, std::any>& in, Bitarray& all_out) const;
         };
     };
 };

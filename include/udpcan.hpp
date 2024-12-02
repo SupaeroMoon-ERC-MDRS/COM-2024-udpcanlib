@@ -1,10 +1,12 @@
+#pragma once
 #include <thread>
+#include <cstring>
 
 #include "net.hpp"
 #include "can.hpp"
 #include "message_definitions.hpp"
 
-#define BURN_IN true
+#define PUSH_MSG(ctype, member)if(std::is_same<T,ctype>::value){res = member.access([this](ctype* msg){internal::CanMsgBytes canmsg(member.getId(), {});std::map<std::string, std::any> data = {};msg->saveTo(data);internal::Bitarray arr({});database.encode(canmsg.id, data, arr);canmsg.all_bytes.insert(canmsg.all_bytes.cbegin(), arr.get().cbegin(), arr.get().cend());udp.push(canmsg);});}
 
 namespace udpcan{
 
