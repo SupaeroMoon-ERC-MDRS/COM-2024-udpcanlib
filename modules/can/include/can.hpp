@@ -127,6 +127,7 @@ namespace udpcan{
                 ~CanDatabase();
 
                 uint32_t parse(const std::string& fn);
+                std::vector<std::pair<uint8_t, uint32_t>> getMessageSizes() const;
                 
                 uint32_t decode(const Bitarray& message_all_bits, std::map<std::string, std::any>& out) const;
                 uint32_t encode(const uint8_t id, const std::map<std::string, std::any>& in, Bitarray& all_out) const;

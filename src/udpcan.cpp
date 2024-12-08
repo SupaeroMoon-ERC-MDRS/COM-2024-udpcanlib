@@ -2,34 +2,25 @@
 
 using namespace udpcan;
 
+NetworkHandler::NetworkHandler():
+    remote_msg(15)
+{
+}
+
 uint32_t NetworkHandler::parse(const std::string& fn){
     return database.parse(fn);
 }
 
 uint32_t NetworkHandler::init(){
-    return udp.init(database.dbc_version);
+    return udp.init(database.dbc_version, database.getMessageSizes(), UDPCAN_PORT);
 }
 
 uint32_t NetworkHandler::reset(){
-    return udp.reset(database.dbc_version);
+    return udp.reset(database.dbc_version, database.getMessageSizes(), UDPCAN_PORT);
 }
 
 uint32_t NetworkHandler::close(){
-    return udp.close();
-}
-
-template<typename T>
-MessageWrapper<T>* NetworkHandler::get(){
-    if(std::is_same<T,RemoteControl>::value){
-        return &remote_msg;
-    }
-}
-
-template<typename T>
-uint32_t NetworkHandler::push(){
-    uint32_t res = CAN_E_I_NO_SUCH_MSG;
-    PUSH_MSG(RemoteControl, remote_msg)
-    return res;
+    return udp.shutdown();
 }
 
 uint32_t NetworkHandler::flush(){
@@ -37,6 +28,10 @@ uint32_t NetworkHandler::flush(){
 }
 
 uint32_t NetworkHandler::start(){
+    if(!udp.isInitialized()){
+        return NET_E_UNINITIALIZED;
+    }
+
     if(thr.joinable()){
 		return CAN_E_THREAD_ALREADY_RUNNING;
 	}
@@ -71,7 +66,7 @@ void NetworkHandler::thread(){
             udp.getMessages(msgs);
         }
         else{
-            udp.reset(database.dbc_version);
+            udp.reset(database.dbc_version, database.getMessageSizes(), UDPCAN_PORT);
             continue;
         }
 
@@ -83,8 +78,8 @@ void NetworkHandler::thread(){
             }
 
             if(msg.id == remote_msg.getId()){
-                res = remote_msg.update([&out](RemoteControl* remote){
-                    remote->updateFrom(out);
+                res = remote_msg.update([&out](RemoteControl& remote){
+                    remote.updateFrom(out);
                 });
             }
         }

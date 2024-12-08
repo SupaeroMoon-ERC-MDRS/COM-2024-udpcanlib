@@ -18,13 +18,18 @@ namespace udpcan{
     template<typename T>
     struct MessageWrapper{
         private:
-            T* message;
+            T message;
             bool updated;
             uint8_t id;
             std::mutex mtx;
 
         public:
-            uint32_t access(const std::function<void(const T*)>& accessor){
+            MessageWrapper(uint8_t mid){
+                updated = false;
+                id = mid;
+            }
+
+            uint32_t access(const std::function<void(const T&)>& accessor){
                 std::unique_lock lk(mtx);
 
                 if(!updated) return CAN_E_NOTUPDATED;
@@ -35,7 +40,7 @@ namespace udpcan{
                 return CAN_E_SUCCESS;
             }
 
-            uint32_t update(const std::function<void(T*)>& accessor){
+            uint32_t update(const std::function<void(T&)>& accessor){
                 std::unique_lock lk(mtx);
 
                 if(id == CAN_INVALID_ID) return CAN_E_WRAPPER_NOT_INITIALIZED;

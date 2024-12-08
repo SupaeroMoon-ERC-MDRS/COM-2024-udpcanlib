@@ -1,6 +1,15 @@
 #pragma once
 #include <cstdint>
 #include <vector>
+#include <string>
+#include <algorithm>
+#include <mutex>
+#include <string.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include "defines.h"
 
 namespace udpcan{
     namespace internal{
@@ -13,14 +22,30 @@ namespace udpcan{
             ~CanMsgBytes();
         };
 
+        struct RecvPacket{
+            sockaddr_in addr;
+            std::vector<uint8_t> buf;
+
+            RecvPacket(){};
+            ~RecvPacket(){};
+        };
+
         class UDP{
             private:
                 bool initialized;
                 bool need_reset;
                 uint16_t expect_dbc_version;
-                std::vector<uint8_t> buf;
+                std::vector<std::pair<uint8_t, uint32_t>> expect_can_ids;
+
+                int32_t socket_fd;
+                std::vector<sockaddr_in> connections;
+
+                std::vector<RecvPacket> buf;
                 std::vector<uint8_t> outbuf;
-                std::vector<CanMsgBytes> messages;
+                std::vector<CanMsgBytes> in_messages;
+
+                std::mutex sock_mtx;
+                std::mutex outbuf_mtx;
 
                 uint32_t readBuf();
                 uint32_t readMsg();
@@ -29,9 +54,9 @@ namespace udpcan{
                 UDP();
                 ~UDP();
 
-                uint32_t init(const uint16_t dbc_version);
-                uint32_t reset(const uint16_t dbc_version);
-                uint32_t close();
+                uint32_t init(const uint16_t dbc_version, const std::vector<std::pair<uint8_t, uint32_t>>& expect_can_ids, const uint16_t port);
+                uint32_t reset(const uint16_t dbc_version, const std::vector<std::pair<uint8_t, uint32_t>>& expect_can_ids, const uint16_t port);
+                uint32_t shutdown();
 
                 bool isInitialized(){
                     return initialized;
@@ -43,8 +68,7 @@ namespace udpcan{
 
                 uint32_t recv(); // thrsafety
                 uint32_t getMessages(std::vector<CanMsgBytes>& messages); // thrsafety
-                uint32_t push(const CanMsgBytes message); // thrsafety
-                uint32_t push(const std::vector<CanMsgBytes>& messages); // thrsafety
+                uint32_t push(const std::vector<uint8_t>& message); // thrsafety
                 uint32_t flush(); // thrsafety
         };
     };

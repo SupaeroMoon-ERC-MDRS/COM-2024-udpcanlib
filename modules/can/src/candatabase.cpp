@@ -68,6 +68,16 @@ uint32_t CanDatabase::parse(const std::string& fn){
     return CAN_E_SUCCESS;
 }
 
+std::vector<std::pair<uint8_t, uint32_t>> CanDatabase::getMessageSizes() const{
+    std::vector<std::pair<uint8_t, uint32_t>> ret;
+    ret.reserve(messages.size());
+
+    for(auto it : messages){
+        ret.push_back({it.first, it.second.message_length});
+    }
+    return ret;
+}
+
 uint32_t CanDatabase::decode(const Bitarray& message_all_bits, std::map<std::string, std::any>& out) const{
     std::vector<uint8_t> bytes = message_all_bits.get();
     uint32_t pos = 0;

@@ -10,7 +10,7 @@ int32_t main(){
     Bitarray in({0x00,0x00,0x0F,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF});
     res = db.decode(in, out);
 
-    udpcan::MessageWrapper<udpcan::RemoteControl> rem;
+    udpcan::MessageWrapper<udpcan::RemoteControl> rem(15);
     uint8_t i = rem.getId();
 
     return 0;
