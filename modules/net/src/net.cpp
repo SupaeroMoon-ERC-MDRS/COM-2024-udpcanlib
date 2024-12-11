@@ -45,7 +45,7 @@ uint32_t UDP::init(const uint16_t dbc_version, const std::vector<std::pair<uint8
     remote_addr.sin_port = htons(12122u);
     remote_addr.sin_addr.s_addr = inet_addr(REMOTE_IP);
 
-    std::vector<uint8_t> remote_addr_bytes(sizeof(sockaddr_in));
+    remote_addr_bytes.resize(sizeof(sockaddr_in));
     memcpy(remote_addr_bytes.data(), &remote_addr, sizeof(sockaddr_in));
 
     initialized = true;
@@ -142,6 +142,8 @@ uint32_t UDP::readMsg(){
                 }
                 else if(it != connections.end() && msg_id == 2){
                     connections.erase(it);
+                }
+                else if(it == connections.end() && msg_id == 2){
                     if(search == remote_addr_bytes){
                         remote_connected = false;
                     }
