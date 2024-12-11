@@ -9,7 +9,10 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <arpa/inet.h>
 #include "defines.h"
+
+#define REMOTE_IP "10.193.91.243"
 
 namespace udpcan{
     namespace internal{
@@ -34,11 +37,15 @@ namespace udpcan{
             private:
                 bool initialized;
                 bool need_reset;
+
+                bool remote_connected;
                 uint16_t expect_dbc_version;
                 std::vector<std::pair<uint8_t, uint32_t>> expect_can_ids;
 
                 int32_t socket_fd;
                 std::vector<sockaddr_in> connections;
+                sockaddr_in remote_addr;
+                std::vector<uint8_t> remote_addr_bytes;
 
                 std::vector<RecvPacket> buf;
                 std::vector<uint8_t> outbuf;
@@ -70,6 +77,8 @@ namespace udpcan{
                 uint32_t getMessages(std::vector<CanMsgBytes>& messages); // thrsafety
                 uint32_t push(const std::vector<uint8_t>& message); // thrsafety
                 uint32_t flush(); // thrsafety
+                uint32_t tryConnectRemote(); // thrsafety
+                uint32_t disconnectRemote(); // thrsafety
         };
     };
 };

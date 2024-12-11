@@ -10,7 +10,7 @@ CanMsgBytes::~CanMsgBytes(){
     all_bytes.clear();
 }
 
-UDP::UDP():initialized(false),need_reset(false),expect_dbc_version(0){
+UDP::UDP():initialized(false),need_reset(false),remote_connected(false),expect_dbc_version(0){
 
 }
 
@@ -41,12 +41,21 @@ uint32_t UDP::init(const uint16_t dbc_version, const std::vector<std::pair<uint8
     flags = flags | O_NONBLOCK;
     if(fcntl(socket_fd, F_SETFL, flags) != 0) return NET_E_SOCK_FAIL_FCNTL;
 
+    remote_addr.sin_family = AF_INET;
+    remote_addr.sin_port = htons(12122u);
+    remote_addr.sin_addr.s_addr = inet_addr(REMOTE_IP);
+
+    std::vector<uint8_t> remote_addr_bytes(sizeof(sockaddr_in));
+    memcpy(remote_addr_bytes.data(), &remote_addr, sizeof(sockaddr_in));
+
     initialized = true;
 
     return NET_E_SUCCESS;
 }
 
 uint32_t UDP::shutdown(){
+    disconnectRemote();
+
     if(close(socket_fd) != 0){
         return NET_E_CANT_CLOSE;
     }
@@ -118,7 +127,7 @@ uint32_t UDP::readMsg(){
 
             uint8_t msg_id = pack.buf[pos];
             pos++;
-            if(msg_id == 0){  // to toggle the connection list one must send the right dbc version and following that a byte of 0x00
+            if(msg_id <= 2){  // 0 = add me as conn, 1 = ack of conn, 2 = remove me as conn
                 pos++;
                 std::vector<uint8_t> search(sizeof(sockaddr_in));
                 memcpy(search.data(), &pack.addr, sizeof(sockaddr_in));
@@ -128,11 +137,17 @@ uint32_t UDP::readMsg(){
                     memcpy(arr.data(), &conn, sizeof(sockaddr_in));
                     return search == arr;
                 });
-                if(it == connections.end()){
+                if(it == connections.end() && msg_id == 0){
                     connections.push_back(pack.addr);
                 }
-                else{
+                else if(it != connections.end() && msg_id == 2){
                     connections.erase(it);
+                    if(search == remote_addr_bytes){
+                        remote_connected = false;
+                    }
+                }
+                else if(msg_id == 1){
+                    remote_connected = true;
                 }
                 continue;
             }
@@ -176,7 +191,7 @@ uint32_t UDP::push(const std::vector<uint8_t>& message){
 uint32_t UDP::flush(){
     for(const sockaddr_in addr : connections){
         uint64_t sent;
-        sent = sendto(socket_fd, outbuf.data(), outbuf.size(), 0, (const sockaddr *)&addr, sizeof(sockaddr_in));
+        sent = sendto(socket_fd, outbuf.data(), outbuf.size(), 0, (const sockaddr *)&addr, sizeof(addr));
 
         if(sent == outbuf.size()){
             continue;
@@ -190,6 +205,44 @@ uint32_t UDP::flush(){
         }
     }
     outbuf.clear();
+
+    return NET_E_SUCCESS;
+}
+
+uint32_t UDP::tryConnectRemote(){
+    if(remote_connected){
+        return NET_E_SUCCESS;
+    }
+
+    std::vector<uint8_t> buf(3, 0);
+    *(uint16_t*)(buf.data()) = expect_dbc_version;
+
+    {
+        std::lock_guard lk(sock_mtx);
+        uint32_t res = sendto(socket_fd, buf.data(), 3, 0, (const sockaddr *)&remote_addr, sizeof(remote_addr));
+        if(res < 3){
+            return NET_E_PARTIAL_MSG;
+        }
+    }
+
+    return NET_E_SUCCESS;
+}
+
+uint32_t UDP::disconnectRemote(){
+    if(!remote_connected){
+        return NET_E_SUCCESS;
+    }
+
+    std::vector<uint8_t> buf(3, 2);
+    *(uint16_t*)(buf.data()) = expect_dbc_version;
+
+    {
+        std::lock_guard lk(sock_mtx);
+        uint32_t res = sendto(socket_fd, buf.data(), 3, 0, (const sockaddr *)&remote_addr, sizeof(remote_addr));
+        if(res < 3){
+            return NET_E_PARTIAL_MSG;
+        }
+    }
 
     return NET_E_SUCCESS;
 }

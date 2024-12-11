@@ -62,6 +62,7 @@ void NetworkHandler::thread(){
 
         std::vector<internal::CanMsgBytes> msgs;
         if(udp.isInitialized() && !udp.needReset()){
+            udp.tryConnectRemote();
             udp.recv();
             udp.getMessages(msgs);
         }
