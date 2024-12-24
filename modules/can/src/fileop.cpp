@@ -93,6 +93,14 @@ uint32_t udpcan::internal::readNextNumeric(std::ifstream& in, const uint64_t eof
     if(!beg && !end) return CAN_E_I_EOF;
     
     try{
+        if(start != 0){
+            in.seekg(start - 1);
+            if(in.peek() == '+' || in.peek() == '-'){
+                start--;
+            }
+            in.seekg(pos - 1);
+        }
+
         std::string num;
         num.resize(pos - start);
         in.seekg(start);
@@ -128,6 +136,14 @@ uint32_t udpcan::internal::readNextFloating(std::ifstream& in, const uint64_t eo
     if(!beg && !end) return CAN_E_I_EOF;
     
     try{
+        if(start != 0){
+            in.seekg(start - 1);
+            if(in.peek() == '+' || in.peek() == '-'){
+                start--;
+            }
+            in.seekg(pos - 1);
+        }
+
         std::string num;
         num.resize(pos - start);
         in.seekg(start);

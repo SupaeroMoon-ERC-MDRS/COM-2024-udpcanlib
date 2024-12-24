@@ -5,9 +5,9 @@ using namespace udpcan::internal;
 
 int32_t main(){
     CanDatabase db;
-    uint32_t res = db.parse("/home/davidgmolnar/Documents/COM-2024/COM-2024-DBC/comms.dbc");
+    uint32_t res = db.parse("C:\\Users\\Lenovo\\Desktop\\COM-2024-DBC\\comms.dbc");
     std::map<std::string, std::any> out = {};
-    Bitarray in({0x00,0x00,0x0F,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF});
+    Bitarray in({0x00,0x00,0x07,0xAC,0x3F,0x07,0x2F,0xAF,0x0F});
     res = db.decode(in, out);
 
     udpcan::MessageWrapper<udpcan::RemoteControl> rem(15);

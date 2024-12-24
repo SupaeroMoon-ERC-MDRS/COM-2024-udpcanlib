@@ -78,22 +78,25 @@ ENumType CanSignalDesc::determineNumType(const std::string& sign, const uint32_t
     }
 
     if(sign == "+"){
-        uint64_t critical_1 = (uint64_t)(std::pow(2, length) * scale + offset);
-        uint64_t critical_2 = (uint64_t)(offset);
+        int64_t critical_1 = (int64_t)(std::pow(2, length) * scale + offset);
+        int64_t critical_2 = (int64_t)(offset);
 
         uint32_t bitreq = std::max(std::log2(critical_1), std::log2(critical_2));
         uint32_t reqlen = std::ceil(bitreq / 8.f) * 8;
+        
+        bool neg = scale < 0 || offset < 0;
+
         if(reqlen == 8){
-            return ENumType::NU8;
+            return neg ? ENumType::NI8 : ENumType::NU8;
         }
         else if(reqlen == 16){
-            return ENumType::NU16;
+            return neg ? ENumType::NI16 : ENumType::NU16;
         }
         else if(reqlen == 32){
-            return ENumType::NU32;
+            return neg ? ENumType::NI32 : ENumType::NU32;
         }
         else{
-            return ENumType::NU64;
+            return neg ? ENumType::NI64 : ENumType::NU64;
         }
     }
     else{
