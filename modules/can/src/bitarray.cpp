@@ -78,6 +78,27 @@ Bitarray Bitarray::operator>>(const uint32_t rhs) const{
     return res;
 }
 
+Bitarray Bitarray::operator<<(const uint32_t rhs) const{
+    uint32_t full = rhs / 8u;
+    uint32_t part = rhs % 8u;
+
+    Bitarray res({});
+    res.buf.resize(buf.size(), 0);
+
+    for(uint32_t pos = buf.size() - 1; pos >= full && pos < buf.size(); pos--){
+        res.buf[pos] = buf[pos - full];
+    }
+
+    for(uint32_t i = buf.size() - 1; i < buf.size(); i--){
+        res.buf[i] = (res.buf[i] << part) & 0xFF;
+        if(i >= 1){
+            res.buf[i] |= (res.buf[i - 1] & (255 - uint8_t(std::pow(2, part) - 1))) >> (8 - part);
+        }
+    }
+
+    return res;
+}
+
 Bitarray& Bitarray::operator>>=(const uint32_t rhs){
     uint32_t full = rhs / 8u;
     uint32_t part = rhs % 8u;
@@ -114,10 +135,17 @@ std::vector<uint8_t> Bitarray::get() const {
     return buf;
 }
 
-template<>
+template<>  // these are prob simplifiable
 uint8_t Bitarray::as() const {
     return buf[0];
 }
+
+/*
+template<typename IntType>
+IntType Bitarray::as() const {
+    return *(IntType*)&buf[0];
+}
+*/
 
 template<>
 uint16_t Bitarray::as() const {

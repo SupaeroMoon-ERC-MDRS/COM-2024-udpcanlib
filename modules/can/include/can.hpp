@@ -7,6 +7,7 @@
 #include <vector>
 #include <cstdint>
 #include <any>
+#include <set>
 #include "definitions.h"
 
 namespace udpcan{
@@ -27,10 +28,21 @@ namespace udpcan{
             public:
                 Bitarray(const uint32_t size);
                 Bitarray(const std::vector<uint8_t>& init);
+
+                template<typename IntType>
+                Bitarray(const IntType v, const uint32_t size){
+                    buf.resize(size);
+                    *(IntType*)&buf[0] = v;
+                }
+
+                std::vector<uint8_t>::const_iterator cbegin(){return buf.cbegin();}
+                std::vector<uint8_t>::const_iterator cend(){return buf.cend();}
+
                 ~Bitarray();
                 Bitarray operator&(const Bitarray& rhs) const;
                 Bitarray operator|(const Bitarray& rhs) const;
                 Bitarray operator>>(const uint32_t rhs) const;
+                Bitarray operator<<(const uint32_t rhs) const;
 
                 Bitarray& operator&=(const Bitarray& rhs);
                 Bitarray& operator|=(const Bitarray& rhs);
@@ -93,7 +105,7 @@ namespace udpcan{
                 uint32_t decode(const Bitarray& message_payload_bits, NumType64& out) const;
 
                 template<typename NumType64>
-                uint32_t encode(const NumType64 num, const uint32_t message_lenght, Bitarray& out) const;
+                uint32_t encode(const std::any num, Bitarray& out) const;
         };
 
         class CanMessageDesc{
@@ -109,9 +121,10 @@ namespace udpcan{
                 ~CanMessageDesc();
                 
                 uint32_t parse(std::ifstream& in, const uint64_t eof);
+                void getSignalNames(std::set<std::string>& vec) const;
 
                 uint32_t decode(const Bitarray& message_payload_bits, std::map<std::string, std::any>& out) const;
-                uint32_t encode(const std::map<std::string, std::any>& in, Bitarray& out) const;
+                uint32_t encode(const std::map<std::string, std::any>& in, Bitarray& out, const uint16_t version) const;
         };
 
         class CanDatabase{

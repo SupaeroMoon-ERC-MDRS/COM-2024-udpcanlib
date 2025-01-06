@@ -40,6 +40,12 @@ uint32_t CanMessageDesc::parse(std::ifstream& in, const uint64_t eof){
     }
 }
 
+void CanMessageDesc::getSignalNames(std::set<std::string>& in) const {
+    for(const std::pair<std::string, CanSignalDesc> p : signals){
+        in.insert(p.first);
+    }
+}
+
 uint32_t CanMessageDesc::decode(const Bitarray& message_payload_bits, std::map<std::string, std::any>& out) const{
     uint32_t res = CAN_E_SUCCESS;
     for(const std::pair<std::string, CanSignalDesc> sig : signals){
@@ -54,6 +60,53 @@ uint32_t CanMessageDesc::decode(const Bitarray& message_payload_bits, std::map<s
         DECODE_SIG(int64_t, NI64)
     }
     return res;
+}
+
+uint32_t CanMessageDesc::encode(const std::map<std::string, std::any>& in, Bitarray& out, const uint16_t version) const{
+    Bitarray msg = Bitarray(message_length);
+    for(const std::pair<std::string, std::any> p : in){
+        Bitarray sig = Bitarray({});
+        uint32_t res = CAN_E_SUCCESS;
+
+        if(signals.at(p.first).num_type64_id == ENumType::NU8){
+            res = signals.at(p.first).encode<uint8_t>(p.second, sig);
+        }
+        else if(signals.at(p.first).num_type64_id == ENumType::NU16){
+            res = signals.at(p.first).encode<uint16_t>(p.second, sig);
+        }
+        else if(signals.at(p.first).num_type64_id == ENumType::NU32){
+            res = signals.at(p.first).encode<uint32_t>(p.second, sig);
+        }
+        else if(signals.at(p.first).num_type64_id == ENumType::NU64){
+            res = signals.at(p.first).encode<uint64_t>(p.second, sig);
+        }
+        else if(signals.at(p.first).num_type64_id == ENumType::NI8){
+            res = signals.at(p.first).encode<int8_t>(p.second, sig);
+        }
+        else if(signals.at(p.first).num_type64_id == ENumType::NI16){
+            res = signals.at(p.first).encode<int16_t>(p.second, sig);
+        }
+        else if(signals.at(p.first).num_type64_id == ENumType::NI32){
+            res = signals.at(p.first).encode<int32_t>(p.second, sig);
+        }
+        else if(signals.at(p.first).num_type64_id == ENumType::NI64){
+            res = signals.at(p.first).encode<int64_t>(p.second, sig);
+        }
+
+        if(res != CAN_E_SUCCESS){
+            return res;
+        }
+
+        msg |= sig;
+    }
+
+    std::vector<uint8_t> pack(message_length + 3, 0);
+    std::copy(msg.cbegin(), msg.cend(), pack.begin() + 3);
+    pack[0] = version & 0x00FF;
+    pack[1] = version & 0xFF00 >> 8;
+    pack[2] = id;
+    out = Bitarray(pack);
+    return CAN_E_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -184,5 +237,37 @@ uint32_t CanSignalDesc::decode(const Bitarray& message_payload_bits, NumType64& 
             out = (NumType64)part.as<int64_t>() * (NumType64)scale + (NumType64)offset;
             return CAN_E_SUCCESS;
     }
+    return CAN_E_SUCCESS;
+}
+
+template<typename NumType64>
+uint32_t CanSignalDesc::encode(const std::any num, Bitarray& out) const {
+    NumType64 value = (std::any_cast<NumType64>(num) - (NumType64)offset) / (NumType64)scale;
+    switch (int_type_id){
+        case EIntType::U8:
+            out = Bitarray((uint8_t)std::round(value), mask.size()) << shift;
+            break;
+        case EIntType::U16:
+            out = Bitarray((uint16_t)std::round(value), mask.size()) << shift;
+            break;
+        case EIntType::U32:
+            out = Bitarray((uint32_t)std::round(value), mask.size()) << shift;
+            break;
+        case EIntType::U64:
+            out = Bitarray((uint64_t)std::round(value), mask.size()) << shift;
+            break;
+        case EIntType::I8:
+            out = Bitarray((int8_t)std::round(value), mask.size()) << shift;
+            break;
+        case EIntType::I16:
+            out = Bitarray((int16_t)std::round(value), mask.size()) << shift;
+            break;
+        case EIntType::I32:
+            out = Bitarray((int32_t)std::round(value), mask.size()) << shift;
+            break;
+        case EIntType::I64:
+            out = Bitarray((int64_t)std::round(value), mask.size()) << shift;
+            break;
+        }
     return CAN_E_SUCCESS;
 }

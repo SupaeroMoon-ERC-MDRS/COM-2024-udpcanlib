@@ -107,3 +107,22 @@ uint32_t CanDatabase::decode(const Bitarray& message_all_bits, std::map<std::str
     }
     return CAN_E_SUCCESS;
 }
+
+uint32_t CanDatabase::encode(const uint8_t id, const std::map<std::string, std::any>& in, Bitarray& all_out) const {
+    std::set<std::string> msg_keys;
+    std::set<std::string> in_keys;
+
+    messages.at(id).getSignalNames(msg_keys);
+    for(const std::pair<std::string, std::any> p : in){
+        in_keys.insert(p.first);
+    }
+
+    if(msg_keys == in_keys){
+        uint32_t res;
+        CAN_E_FW_IF_ERR(messages.at(id).encode(in, all_out, dbc_version));
+        return res;
+    }
+    else{
+        return CAN_E_I_SIGNAMES;
+    }
+}

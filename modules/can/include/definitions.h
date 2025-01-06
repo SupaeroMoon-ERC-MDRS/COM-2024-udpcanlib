@@ -25,6 +25,7 @@
 #define CAN_E_PARTIAL_MSG (uint32_t)1034
 #define CAN_E_I_KEYERR (uint32_t)1035
 
+#define CAN_E_I_SIGNAMES (uint32_t)1036
 
 
 #define CAN_E_WRAPPER_NOT_INITIALIZED (uint32_t)1040
