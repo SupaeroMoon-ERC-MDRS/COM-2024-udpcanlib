@@ -10,6 +10,8 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g3")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
+set(GENERATE_PYBIND TRUE)
+
 set(INC_DIRS
     ./include/
     ./modules/net/include/
@@ -22,6 +24,10 @@ set(SOURCES
 
 set(TEST_SOURCES
     ./test/test.cpp
+)
+
+set(PY_SOURCES
+    ./pybind/bindings.cpp
 )
 
 add_subdirectory(./modules/can)
@@ -66,3 +72,25 @@ target_link_libraries(udpcan-test PRIVATE
 target_link_directories(udpcan-test PRIVATE
     ./lib/
 )
+
+if(GENERATE_PYBIND)
+    set(pybind11_DIR /home/davidgmolnar/.local/lib/python3.10/site-packages/pybind11/share/cmake/pybind11) 
+    find_package(pybind11 REQUIRED)
+
+    pybind11_add_module(udpcanpy ${PY_SOURCES} ${SOURCES})
+
+    target_include_directories(udpcanpy PUBLIC
+        ${PYBIND_INC}
+        ${INC_DIRS}
+    )
+
+    target_link_libraries(udpcanpy PUBLIC
+        udpcan-can
+        udpcan-net
+        udpcan
+    )
+
+    target_link_directories(udpcanpy PUBLIC
+        ./lib/
+    )
+endif()

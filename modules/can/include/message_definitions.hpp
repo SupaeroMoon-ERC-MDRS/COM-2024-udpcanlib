@@ -65,6 +65,7 @@ namespace udpcan{
                 std::unique_lock lk(mtx);
                 if(id == CAN_INVALID_ID) return CAN_E_WRAPPER_NOT_INITIALIZED;
                 f = updated;
+                return CAN_E_SUCCESS;
             }
 
             uint32_t clearUpdate(){
@@ -76,7 +77,7 @@ namespace udpcan{
     };
 
     #pragma pack(push,1)
-    struct RemoteControl : public internal::HasSerDes{
+    struct RemoteControl{
         bool l_top;
         bool l_bottom;
         bool l_right;
@@ -121,7 +122,7 @@ namespace udpcan{
             return CAN_E_SUCCESS;
         }
 
-        uint32_t saveTo(std::map<std::string, std::any>& data){
+        uint32_t saveTo(std::map<std::string, std::any>& data) const{
             data.clear();
             data["l_top"] = l_top;
             data["l_bottom"] = l_bottom;
