@@ -15,12 +15,14 @@ if(res != 0):
 
 remote = nh.getRemoteControl()
 remdata = remote.access()
+remdata = remote.access()
 
 remdata.left_trigger = 10
 remdata.right_trigger = 10
 
 remote.update(remdata)
 remdata2 = remote.access()
+remdata2 = remote.access() # TODO fix this, when CAN_E_NOT_UPDATED we get memory garbage
 
 i = 0
 print(i)

@@ -84,5 +84,10 @@ void NetworkHandler::thread(){
                 });
             }
         }
+
+        /*remote_msg.update([](RemoteControl& rem){
+            rem.left_trigger = (rem.left_trigger + 1) % 256;
+            rem.right_trigger = (rem.right_trigger - 1) % 256;
+        });*/
     }
 }

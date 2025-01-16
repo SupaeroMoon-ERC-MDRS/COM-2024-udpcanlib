@@ -15,15 +15,13 @@ template<typename T>
 void declare_msgwrap(py::module& m, const std::string& prefix){
     py::class_<udpcan::MessageWrapper<T>>(m, (prefix + std::string("Wrapper")).c_str(), py::module_local())
         .def(py::init<uint8_t>())
-        .def("access", [](udpcan::MessageWrapper<T>& self){
-            T t;
-            self.access([&t](const T& m){
+        .def("access", [](udpcan::MessageWrapper<T>& self, T& t){
+            return self.access([&t](const T& m){
                 t = m;
             });
-            return t;
         })
         .def("update", [](udpcan::MessageWrapper<T>& self, const T& t){
-            self.update([&t](T& m){
+            return self.update([&t](T& m){
                 m = t;
             });
         })
@@ -48,6 +46,7 @@ PYBIND11_MODULE(udpcanpy, m){
         .def("encode", &udpcan::internal::CanDatabase::encode);
 
     py::class_<udpcan::RemoteControl, std::shared_ptr<udpcan::RemoteControl> >(m, "RemoteControl", py::module_local())
+        .def(py::init<>())
         .def_readwrite("l_top", &udpcan::RemoteControl::l_top)
         .def_readwrite("l_bottom", &udpcan::RemoteControl::l_bottom)
         .def_readwrite("l_right", &udpcan::RemoteControl::l_right)
