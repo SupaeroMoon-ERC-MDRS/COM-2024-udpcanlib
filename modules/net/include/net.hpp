@@ -12,7 +12,7 @@
 #include <arpa/inet.h>
 #include "defines.h"
 
-#define REMOTE_IP "10.188.69.148"
+#define REMOTE_IP "255.255.255.255"
 
 namespace udpcan{
     namespace internal{

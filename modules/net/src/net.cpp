@@ -26,6 +26,10 @@ uint32_t UDP::init(const uint16_t dbc_version, const std::vector<std::pair<uint8
     if(socket_fd < 0){
         return NET_E_SOCK_FAIL_ASSIGN;
     }
+    int broadcastEnable = 1;
+    if(setsockopt(socket_fd, SOL_SOCKET, SO_BROADCAST, &broadcastEnable, sizeof(broadcastEnable)) < 0){
+        return NET_E_SOCK_FAIL_ASSIGN;
+    }
 
     sockaddr_in addr;
     addr.sin_family = AF_INET;
@@ -149,7 +153,11 @@ uint32_t UDP::readMsg(){
                     }
                 }
                 else if(msg_id == 1){
-                    remote_connected = true;
+                    if(pack.addr.sin_port == htons(12122u)){
+                        remote_connected = true;
+                        remote_addr_bytes = search;
+                        remote_addr.sin_addr = pack.addr.sin_addr;
+                    }
                 }
                 continue;
             }
