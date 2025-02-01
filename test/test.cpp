@@ -40,6 +40,7 @@ int32_t main(){
             std::cout << "RL: " << remote_view.r_left << "\n";
             std::cout << "LS: " << remote_view.l_shoulder << "\n";
             std::cout << "RS: " << remote_view.r_shoulder << "\n";
+            std::cout << "EStop: " << remote_view.e_stop << "\n";
             std::cout << "LTrigger: " << (uint16_t)remote_view.left_trigger << "\n"; // 0 not pressed 255 full pressed
             std::cout << "RTrigger: " << (uint16_t)remote_view.right_trigger << "\n"; // 0 not pressed 255 full pressed
             std::cout << "ThumbLX: " << (uint16_t)remote_view.thumb_left_x << "\n"; // left < right
