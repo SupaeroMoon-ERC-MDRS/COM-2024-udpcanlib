@@ -147,4 +147,66 @@ namespace udpcan{
 
     };
     #pragma pack(pop)
+
+    #pragma pack(push,1)
+    struct NavOdometry{
+        float distance;
+        float speed;
+        float joint_0;
+        float joint_1;
+        float joint_2;
+        float joint_3;
+
+        uint32_t updateFrom(const std::map<std::string, std::any>& data){
+            try{
+                distance = std::any_cast<float>(data.at("distance"));
+                speed = std::any_cast<float>(data.at("speed"));
+                joint_0 = std::any_cast<float>(data.at("joint_0"));
+                joint_1 = std::any_cast<float>(data.at("joint_1"));
+                joint_2 = std::any_cast<float>(data.at("joint_2"));
+                joint_3 = std::any_cast<float>(data.at("joint_3"));
+            }
+            catch(...){
+                return CAN_E_I_KEYERR;
+            }
+            return CAN_E_SUCCESS;
+        }
+
+        uint32_t saveTo(std::map<std::string, std::any>& data) const{
+            data.clear();
+            data["distance"] = distance;
+            data["speed"] = speed;
+            data["joint_0"] = joint_0;
+            data["joint_1"] = joint_1;
+            data["joint_2"] = joint_2;
+            data["joint_3"] = joint_3;
+            return CAN_E_SUCCESS;
+        }
+    };
+    #pragma pack(pop)
+
+    #pragma pack(push,1)
+    struct NavState{
+        bool arm_active;
+        bool gripper_closed;
+
+        uint32_t updateFrom(const std::map<std::string, std::any>& data){
+            try{
+                arm_active = std::any_cast<uint8_t>(data.at("arm_active"));
+                gripper_closed = std::any_cast<uint8_t>(data.at("gripper_closed"));
+            }
+            catch(...){
+                return CAN_E_I_KEYERR;
+            }
+            return CAN_E_SUCCESS;
+        }
+
+        uint32_t saveTo(std::map<std::string, std::any>& data) const{
+            data.clear();
+            data["arm_active"] = arm_active;
+            data["gripper_closed"] = gripper_closed;
+            return CAN_E_SUCCESS;
+        }
+    };
+    #pragma pack(pop)
 };
