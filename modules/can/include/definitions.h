@@ -33,4 +33,4 @@
 #define CAN_E_THREAD_LAUNCH_FAIL (uint32_t)2000
 
 #define CAN_E_FW_IF_ERR(func) {res = func; if(res != CAN_E_SUCCESS) return res;}
-#define DECODE_SIG(ctype, enumtype) if(sig.second.num_type64_id == ENumType::enumtype){ctype v = 0; CAN_E_FW_IF_ERR(sig.second.decode(message_payload_bits, v)) out[sig.first] = v;}
+#define DECODE_SIG(ctype, enumtype) if(sig.second.num_type_id == ENumType::enumtype){ctype v = 0; CAN_E_FW_IF_ERR(sig.second.decode(message_payload_bits, v)) out[sig.first] = v;}

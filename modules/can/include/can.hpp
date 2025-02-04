@@ -91,7 +91,7 @@ namespace udpcan{
                 static EIntType determineIntType(const std::string& sign, const uint32_t length);
 
             public:
-                ENumType num_type64_id;
+                ENumType num_type_id;
                 EIntType int_type_id;
                 std::string name;
 
@@ -101,10 +101,10 @@ namespace udpcan{
 
                 uint32_t parse(std::ifstream& in, const uint64_t eof);
 
-                template<typename NumType64>
-                uint32_t decode(const Bitarray& message_payload_bits, NumType64& out) const;
+                template<typename NumType>
+                uint32_t decode(const Bitarray& message_payload_bits, NumType& out) const;
 
-                template<typename NumType64>
+                template<typename NumType>
                 uint32_t encode(const std::any num, Bitarray& out) const;
         };
 

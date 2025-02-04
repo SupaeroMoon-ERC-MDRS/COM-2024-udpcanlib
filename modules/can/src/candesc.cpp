@@ -66,31 +66,34 @@ uint32_t CanMessageDesc::encode(const std::map<std::string, std::any>& in, Bitar
     Bitarray msg = Bitarray(message_length);
     for(const std::pair<std::string, std::any> p : in){
         Bitarray sig = Bitarray({});
-        uint32_t res = CAN_E_SUCCESS;
+        uint32_t res = CAN_E_I_NO_SUCH_MSG;
 
-        if(signals.at(p.first).num_type64_id == ENumType::NU8){
+        if(signals.at(p.first).num_type_id == ENumType::NU8){
             res = signals.at(p.first).encode<uint8_t>(p.second, sig);
         }
-        else if(signals.at(p.first).num_type64_id == ENumType::NU16){
+        else if(signals.at(p.first).num_type_id == ENumType::NU16){
             res = signals.at(p.first).encode<uint16_t>(p.second, sig);
         }
-        else if(signals.at(p.first).num_type64_id == ENumType::NU32){
+        else if(signals.at(p.first).num_type_id == ENumType::NU32){
             res = signals.at(p.first).encode<uint32_t>(p.second, sig);
         }
-        else if(signals.at(p.first).num_type64_id == ENumType::NU64){
+        else if(signals.at(p.first).num_type_id == ENumType::NU64){
             res = signals.at(p.first).encode<uint64_t>(p.second, sig);
         }
-        else if(signals.at(p.first).num_type64_id == ENumType::NI8){
+        else if(signals.at(p.first).num_type_id == ENumType::NI8){
             res = signals.at(p.first).encode<int8_t>(p.second, sig);
         }
-        else if(signals.at(p.first).num_type64_id == ENumType::NI16){
+        else if(signals.at(p.first).num_type_id == ENumType::NI16){
             res = signals.at(p.first).encode<int16_t>(p.second, sig);
         }
-        else if(signals.at(p.first).num_type64_id == ENumType::NI32){
+        else if(signals.at(p.first).num_type_id == ENumType::NI32){
             res = signals.at(p.first).encode<int32_t>(p.second, sig);
         }
-        else if(signals.at(p.first).num_type64_id == ENumType::NI64){
+        else if(signals.at(p.first).num_type_id == ENumType::NI64){
             res = signals.at(p.first).encode<int64_t>(p.second, sig);
+        }
+        else if(signals.at(p.first).num_type_id == ENumType::NF32){
+            res = signals.at(p.first).encode<float>(p.second, sig);
         }
 
         if(res != CAN_E_SUCCESS){
@@ -112,12 +115,12 @@ uint32_t CanMessageDesc::encode(const std::map<std::string, std::any>& in, Bitar
 //////////////////////////////////////////////////////////////////////
 
 CanSignalDesc::CanSignalDesc()
-:mask(Bitarray({})),shift(0),scale(0),offset(0),num_type64_id(ENumType::NU8),int_type_id(EIntType::U32),name(""){
+:mask(Bitarray({})),shift(0),scale(0),offset(0),num_type_id(ENumType::NU8),int_type_id(EIntType::U32),name(""){
 
 }
 
 CanSignalDesc::CanSignalDesc(const uint32_t message_length)
-:mask(Bitarray(message_length)),shift(0),scale(0),offset(0),num_type64_id(ENumType::NU8),int_type_id(EIntType::U32),name(""){
+:mask(Bitarray(message_length)),shift(0),scale(0),offset(0),num_type_id(ENumType::NU8),int_type_id(EIntType::U32),name(""){
 
 }
 
@@ -197,52 +200,52 @@ uint32_t CanSignalDesc::parse(std::ifstream& in, const uint64_t eof){
     mask.set(shift, length);
 
     int_type_id = determineIntType(sign, length);
-    num_type64_id = determineNumType(sign, length, scale, offset);
+    num_type_id = determineNumType(sign, length, scale, offset);
     return CAN_E_SUCCESS;
 }
 
-template<typename NumType64>
-uint32_t CanSignalDesc::decode(const Bitarray& message_payload_bits, NumType64& out) const{
+template<typename NumType>
+uint32_t CanSignalDesc::decode(const Bitarray& message_payload_bits, NumType& out) const{
     Bitarray part = (message_payload_bits & mask) >> shift;
     switch (int_type_id){
         case EIntType::U8:
-            out = (NumType64)part.as<uint8_t>() * (NumType64)scale + (NumType64)offset;
+            out = (NumType)part.as<uint8_t>() * (NumType)scale + (NumType)offset;
             return CAN_E_SUCCESS;
         
         case EIntType::U16:
-            out = (NumType64)part.as<uint16_t>() * (NumType64)scale + (NumType64)offset;
+            out = (NumType)part.as<uint16_t>() * (NumType)scale + (NumType)offset;
             return CAN_E_SUCCESS;
 
         case EIntType::U32:
-            out = (NumType64)part.as<uint32_t>() * (NumType64)scale + (NumType64)offset;
+            out = (NumType)part.as<uint32_t>() * (NumType)scale + (NumType)offset;
             return CAN_E_SUCCESS;
 
         case EIntType::U64:
-            out = (NumType64)part.as<uint64_t>() * (NumType64)scale + (NumType64)offset;
+            out = (NumType)part.as<uint64_t>() * (NumType)scale + (NumType)offset;
             return CAN_E_SUCCESS;
 
         case EIntType::I8:
-            out = (NumType64)part.as<int8_t>() * (NumType64)scale + (NumType64)offset;
+            out = (NumType)part.as<int8_t>() * (NumType)scale + (NumType)offset;
             return CAN_E_SUCCESS;
 
         case EIntType::I16:
-            out = (NumType64)part.as<int16_t>() * (NumType64)scale + (NumType64)offset;
+            out = (NumType)part.as<int16_t>() * (NumType)scale + (NumType)offset;
             return CAN_E_SUCCESS;
 
         case EIntType::I32:
-            out = (NumType64)part.as<int32_t>() * (NumType64)scale + (NumType64)offset;
+            out = (NumType)part.as<int32_t>() * (NumType)scale + (NumType)offset;
             return CAN_E_SUCCESS;
 
         case EIntType::I64:
-            out = (NumType64)part.as<int64_t>() * (NumType64)scale + (NumType64)offset;
+            out = (NumType)part.as<int64_t>() * (NumType)scale + (NumType)offset;
             return CAN_E_SUCCESS;
     }
     return CAN_E_SUCCESS;
 }
 
-template<typename NumType64>
+template<typename NumType>
 uint32_t CanSignalDesc::encode(const std::any num, Bitarray& out) const {
-    NumType64 value = (std::any_cast<NumType64>(num) - (NumType64)offset) / (NumType64)scale;
+    NumType value = (std::any_cast<NumType>(num) - (NumType)offset) / (NumType)scale;
     switch (int_type_id){
         case EIntType::U8:
             out = Bitarray((uint8_t)std::round(value), mask.size()) << shift;
