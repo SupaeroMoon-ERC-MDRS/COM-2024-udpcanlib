@@ -103,11 +103,9 @@ uint32_t CanMessageDesc::encode(const std::map<std::string, std::any>& in, Bitar
         msg |= sig;
     }
 
-    std::vector<uint8_t> pack(message_length + 3, 0);
-    std::copy(msg.cbegin(), msg.cend(), pack.begin() + 3);
-    pack[0] = version & 0x00FF;
-    pack[1] = version & 0xFF00 >> 8;
-    pack[2] = id;
+    std::vector<uint8_t> pack(message_length + 1, 0);
+    std::copy(msg.cbegin(), msg.cend(), pack.begin() + 1);
+    pack[0] = id;
     out = Bitarray(pack);
     return CAN_E_SUCCESS;
 }

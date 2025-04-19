@@ -1,10 +1,14 @@
 #include "udpcan.hpp"
 #include <iostream>
+#include <chrono>
+#include <thread>
+
+using namespace std::chrono_literals;
 
 int32_t main(){
     udpcan::NetworkHandler nh;
     uint32_t res;
-    res = nh.parse("/home/davidgmolnar/Documents/COM-2024/COM-2024-DBC/comms.dbc");
+    res = nh.parse("C:/Users/Lenovo/Desktop/COM-2024/COM-2024-DBC/comms.dbc");
     if(res != 0){
         std::cout << "Failed to parse, error code was " << res << std::endl;
         return -1;
@@ -49,6 +53,8 @@ int32_t main(){
             std::cout << "ThumbRY: " << (uint16_t)remote_view.thumb_right_y; // top < bottom
             std::cout << std::endl;
         });
+
+        std::this_thread::sleep_for(100ms);
 
         if(res != CAN_E_SUCCESS){
             //std::cout << "Failed to access RemoteControl, error code was " << res << std::endl;

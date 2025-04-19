@@ -83,13 +83,7 @@ uint32_t CanDatabase::decode(const Bitarray& message_all_bits, std::map<std::str
     uint32_t pos = 0;
     out.clear();
 
-    while(pos + 4u < bytes.size()){ // 2 dbc version 1 msg id +1 min msg size = 4u
-        uint16_t msg_version = *(uint16_t*)(bytes.data() + pos);
-        if(msg_version != dbc_version){
-            return CAN_E_WRONG_DBC_VERSION;
-        }
-        pos += 2;
-        
+    while(pos + 2u < bytes.size()){ // 1 msg id +1 min msg size = 2u        
         uint8_t msg_id = bytes[pos];
         if(messages.find(msg_id) == messages.cend()){
             return CAN_E_UNKNOWN_MSG_ID;

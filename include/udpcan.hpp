@@ -2,7 +2,7 @@
 #include <thread>
 #include <cstring>
 
-#include "net.hpp"
+#include "network.hpp"
 #include "can.hpp"
 #include "message_definitions.hpp"
 

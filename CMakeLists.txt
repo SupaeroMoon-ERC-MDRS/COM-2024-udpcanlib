@@ -10,12 +10,13 @@ set(CMAKE_CXX_FLAGS_DEBUG "-g3")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
-set(GENERATE_PYBIND TRUE)
+set(GENERATE_PYBIND FALSE)
 
 set(INC_DIRS
     ./include/
-    ./modules/net/include/
+    ./modules/network/include/
     ./modules/can/include/
+    ../COM-2024-udpcan-net/include/
 )
 
 set(SOURCES
@@ -31,7 +32,7 @@ set(PY_SOURCES
 )
 
 add_subdirectory(./modules/can)
-add_subdirectory(./modules/net)
+add_subdirectory(./modules/network)
 
 ################## lib ##################
 
@@ -50,10 +51,12 @@ target_include_directories(udpcan PRIVATE
 target_link_libraries(udpcan PRIVATE
     udpcan-can
     udpcan-net
+    udpcan-network
 )
 
 target_link_directories(udpcan PRIVATE
     ./lib/
+    ../COM-2024-udpcan-net/lib/
 )
 
 ################## test ##################
@@ -67,10 +70,12 @@ target_include_directories(udpcan-test PRIVATE
 target_link_libraries(udpcan-test PRIVATE
     udpcan-can
     udpcan-net
+    udpcan-network
 )
 
 target_link_directories(udpcan-test PRIVATE
     ./lib/
+    ../COM-2024-udpcan-net/lib/
 )
 
 if(GENERATE_PYBIND)
@@ -87,10 +92,12 @@ if(GENERATE_PYBIND)
     target_link_libraries(udpcanpy PUBLIC
         udpcan-can
         udpcan-net
+        udpcan-network
         udpcan
     )
 
     target_link_directories(udpcanpy PUBLIC
         ./lib/
+        ../COM-2024-udpcan-net/lib/
     )
 endif()
