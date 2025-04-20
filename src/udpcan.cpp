@@ -53,7 +53,7 @@ uint32_t NetworkHandler::stop(){
 		std::unique_lock<std::mutex> lk(thr_mtx);
         thr.join();
 	}
-    return CAN_E_SUCCESS;
+    return udp.shutdown();
 }
 
 void NetworkHandler::thread(){
