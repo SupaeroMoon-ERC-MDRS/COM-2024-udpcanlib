@@ -2,6 +2,14 @@
 
 using namespace udpcan::internal;
 
+// need separate vector signals that are pretty much a copy in terms of holder type determinations
+// except they read a length first then length times the number
+// but not with bitmask, just elementary 8 16 32 64 size numbers
+
+// messages have normal signal maps and vector signal maps. Size of message is always zero if it has vector message
+// if size 0 then candatabase.cpp:93 does a size determination (seek then return) to find the end of this message 
+// aka messages dont have to be split int the input already
+
 CanMessageDesc::CanMessageDesc():signals({}),id(0),message_length(0){
 
 }
@@ -44,6 +52,14 @@ void CanMessageDesc::getSignalNames(std::set<std::string>& in) const {
     for(const std::pair<std::string, CanSignalDesc> p : signals){
         in.insert(p.first);
     }
+}
+
+std::map<std::string, ENumType> CanMessageDesc::getSignalTypes() const {
+    std::map<std::string, ENumType> ret;
+    for(const std::pair<std::string, CanSignalDesc> sig : signals){
+        ret[sig.first] = sig.second.num_type_id;
+    }
+    return ret;
 }
 
 uint32_t CanMessageDesc::decode(const Bitarray& message_payload_bits, std::map<std::string, std::any>& out) const{

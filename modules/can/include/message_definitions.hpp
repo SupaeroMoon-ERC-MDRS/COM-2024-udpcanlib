@@ -8,13 +8,6 @@
 
 namespace udpcan{
 
-    namespace internal{
-        struct HasSerDes{
-            virtual uint32_t updateFrom(const std::map<std::string, std::any>& data) = 0;
-            virtual uint32_t saveTo(std::map<std::string, std::any>& data) = 0;
-        };
-    };
-
     template<typename T>
     struct MessageWrapper{
         private:

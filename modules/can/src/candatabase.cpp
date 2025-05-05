@@ -68,6 +68,7 @@ uint32_t CanDatabase::parse(const std::string& fn){
     return CAN_E_SUCCESS;
 }
 
+// TODO check if we really need this
 std::vector<std::pair<uint8_t, uint32_t>> CanDatabase::getMessageSizes() const{
     std::vector<std::pair<uint8_t, uint32_t>> ret;
     ret.reserve(messages.size());
@@ -119,4 +120,28 @@ uint32_t CanDatabase::encode(const uint8_t id, const std::map<std::string, std::
     else{
         return CAN_E_I_SIGNAMES;
     }
+}
+
+std::vector<std::string> CanDatabase::getSignalNames() const {
+    std::vector<std::string> ret;
+
+    for(const std::pair<uint8_t, CanMessageDesc> msg : messages){
+        std::set<std::string> msg_keys;
+        msg.second.getSignalNames(msg_keys);
+        std::copy(msg_keys.cbegin(), msg_keys.cend(), std::back_inserter(ret));
+    }
+
+    return ret;
+}
+
+std::map<std::string, ENumType> CanDatabase::getSignalTypes() const {
+    std::map<std::string, ENumType> ret;
+
+    for(const std::pair<uint8_t, CanMessageDesc> msg : messages){
+        for(const std::pair<std::string, ENumType> sig : msg.second.getSignalTypes()){
+            ret[sig.first] = sig.second;
+        }
+    }
+
+    return ret;
 }

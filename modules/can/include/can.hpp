@@ -122,6 +122,7 @@ namespace udpcan{
                 
                 uint32_t parse(std::ifstream& in, const uint64_t eof);
                 void getSignalNames(std::set<std::string>& vec) const;
+                std::map<std::string, ENumType> getSignalTypes() const;
 
                 uint32_t decode(const Bitarray& message_payload_bits, std::map<std::string, std::any>& out) const;
                 uint32_t encode(const std::map<std::string, std::any>& in, Bitarray& out, const uint16_t version) const;
@@ -141,6 +142,8 @@ namespace udpcan{
 
                 uint32_t parse(const std::string& fn);
                 std::vector<std::pair<uint8_t, uint32_t>> getMessageSizes() const;
+                std::vector<std::string> getSignalNames() const;
+                std::map<std::string, ENumType> getSignalTypes() const;
                 
                 uint32_t decode(const Bitarray& message_all_bits, std::map<std::string, std::any>& out) const;
                 uint32_t encode(const uint8_t id, const std::map<std::string, std::any>& in, Bitarray& all_out) const;
