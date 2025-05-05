@@ -69,7 +69,7 @@ std::map<std::string, ENumType> CanMessageDesc::getSignalTypes() const {
     return ret;
 }
 
-uint32_t CanMessageDesc::decode(const std::vector<uint8_t>& message_payload, std::map<std::string, std::any>& out) const{
+uint32_t CanMessageDesc::decode(const std::vector<uint8_t>& message_payload, std::map<std::string, std::any>& out, uint32_t& msg_size) const{
     uint32_t res = CAN_E_SUCCESS;
     if(!signals.empty()){
         Bitarray message_payload_bits(message_payload);
@@ -84,9 +84,10 @@ uint32_t CanMessageDesc::decode(const std::vector<uint8_t>& message_payload, std
             DECODE_SIG(int32_t, NI32)
             DECODE_SIG(int64_t, NI64)
         }
+        msg_size = message_length;
     }
     if(vector_signals.empty()){
-        uint32_t start_pos = message_length * 8;
+        uint32_t start_pos = message_length;
         uint32_t end_pos;
         for(const CanVectorSignalDesc& sig : vector_signals){
             DECODE_VEC_SIG(float, NF32)
@@ -100,6 +101,7 @@ uint32_t CanMessageDesc::decode(const std::vector<uint8_t>& message_payload, std
             DECODE_VEC_SIG(int64_t, NI64)
             start_pos = end_pos;
         }
+        msg_size = end_pos;
     }
     return res;
 }

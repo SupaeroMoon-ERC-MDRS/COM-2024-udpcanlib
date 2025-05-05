@@ -90,12 +90,13 @@ uint32_t CanDatabase::decode(const std::vector<uint8_t>& message_all, std::map<s
         }
         pos += 1;
 
-        uint32_t msg_size = messages.at(msg_id).message_length;
-        if(pos + msg_size < message_all.size()){
+        uint32_t msg_size_min = messages.at(msg_id).message_length;
+        if(pos + msg_size_min < message_all.size()){
             return CAN_E_PARTIAL_MSG;
         }
 
-        messages.at(msg_id).decode(std::vector<uint8_t>(message_all.cbegin() + pos, message_all.cbegin() + pos + msg_size), out);
+        uint32_t msg_size;
+        messages.at(msg_id).decode(std::vector<uint8_t>(message_all.cbegin() + pos, message_all.cend()), out, msg_size);
         pos += msg_size;
     }
     return CAN_E_SUCCESS;
