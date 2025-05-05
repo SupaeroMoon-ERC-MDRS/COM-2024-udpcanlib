@@ -79,31 +79,29 @@ std::vector<std::pair<uint8_t, uint32_t>> CanDatabase::getMessageSizes() const{
     return ret;
 }
 
-uint32_t CanDatabase::decode(const Bitarray& message_all_bits, std::map<std::string, std::any>& out) const{
-    std::vector<uint8_t> bytes = message_all_bits.get();
+uint32_t CanDatabase::decode(const std::vector<uint8_t>& message_all, std::map<std::string, std::any>& out) const{
     uint32_t pos = 0;
     out.clear();
 
-    while(pos + 2u < bytes.size()){ // 1 msg id +1 min msg size = 2u        
-        uint8_t msg_id = bytes[pos];
+    while(pos + 2u < message_all.size()){ // 1 msg id +1 min msg size = 2u        
+        uint8_t msg_id = message_all[pos];
         if(messages.find(msg_id) == messages.cend()){
             return CAN_E_UNKNOWN_MSG_ID;
         }
         pos += 1;
 
         uint32_t msg_size = messages.at(msg_id).message_length;
-        if(pos + msg_size < bytes.size()){
+        if(pos + msg_size < message_all.size()){
             return CAN_E_PARTIAL_MSG;
         }
 
-        Bitarray msg_payload = Bitarray(std::vector<uint8_t>(bytes.cbegin() + pos, bytes.cbegin() + pos + msg_size));
-        messages.at(msg_id).decode(msg_payload, out);
+        messages.at(msg_id).decode(std::vector<uint8_t>(message_all.cbegin() + pos, message_all.cbegin() + pos + msg_size), out);
         pos += msg_size;
     }
     return CAN_E_SUCCESS;
 }
 
-uint32_t CanDatabase::encode(const uint8_t id, const std::map<std::string, std::any>& in, Bitarray& all_out) const {
+uint32_t CanDatabase::encode(const uint8_t id, const std::map<std::string, std::any>& in, std::vector<uint8_t>& all_out) const {
     std::set<std::string> msg_keys;
     std::set<std::string> in_keys;
 

@@ -11,7 +11,42 @@
 #include "definitions.h"
 
 namespace udpcan{
-    namespace internal{     
+    namespace internal{
+        
+        enum ENumType{
+            NU8 = 0,
+            NU16,
+            NU32,
+            NU64,
+            NI8,
+            NI16,
+            NI32,
+            NI64,
+            NF32
+        };
+
+        enum EIntType{
+            U8 = 0,
+            U16,
+            U32,
+            U64,
+            I8,
+            I16,
+            I32,
+            I64,
+        };
+
+        const std::map<ENumType, uint8_t> type_size = {
+            {ENumType::NU8, 1},
+            {ENumType::NU16, 2},
+            {ENumType::NU32, 4},
+            {ENumType::NU64, 8},
+            {ENumType::NI8, 1},
+            {ENumType::NI16, 2},
+            {ENumType::NI32, 4},
+            {ENumType::NI64, 8},
+            {ENumType::NF32, 4},
+        };
 
         bool isValidString(const char c);
         uint32_t openRead(const std::string& fn, uint64_t& end, std::ifstream& in);
@@ -57,27 +92,23 @@ namespace udpcan{
                 std::vector<uint8_t> get() const;
         };
 
-        enum ENumType{
-            NU8 = 0,
-            NU16,
-            NU32,
-            NU64,
-            NI8,
-            NI16,
-            NI32,
-            NI64,
-            NF32
-        };
+        class CanVectorSignalDesc{
+            public:
+                ENumType num_type_id;
+                std::string name;
 
-        enum EIntType{
-            U8 = 0,
-            U16,
-            U32,
-            U64,
-            I8,
-            I16,
-            I32,
-            I64,
+                CanVectorSignalDesc();
+                ~CanVectorSignalDesc();
+
+                uint32_t parse(std::ifstream& in, const uint64_t eof);
+
+                // from start_pos, uint32_t length then length*num_type_id, sets end_pos as start_pos + 4 + length * sizeof(num_type_id)
+                template<typename NumType>
+                uint32_t decode(const std::vector<uint8_t>& message_payload, std::vector<NumType>& out, const uint32_t start_pos, uint32_t& end_pos) const;
+
+                // creates a bitarray as 4 byte length + length * num_type_id. These are then concatenated message level.
+                template<typename NumType>
+                uint32_t encode(const std::any val, std::vector<uint8_t>& out) const;
         };
 
         class CanSignalDesc{
@@ -111,10 +142,12 @@ namespace udpcan{
         class CanMessageDesc{
             private:
                 std::map<std::string, CanSignalDesc> signals;
+                std::vector<CanVectorSignalDesc> vector_signals;
+                std::map<std::string, uint32_t> name_vector_id;
 
             public:
                 uint8_t id;
-                uint32_t message_length;
+                uint32_t message_length; // before vectors
                 std::string name;
 
                 CanMessageDesc();
@@ -124,8 +157,8 @@ namespace udpcan{
                 void getSignalNames(std::set<std::string>& vec) const;
                 std::map<std::string, ENumType> getSignalTypes() const;
 
-                uint32_t decode(const Bitarray& message_payload_bits, std::map<std::string, std::any>& out) const;
-                uint32_t encode(const std::map<std::string, std::any>& in, Bitarray& out, const uint16_t version) const;
+                uint32_t decode(const std::vector<uint8_t>& message_payload, std::map<std::string, std::any>& out) const;
+                uint32_t encode(const std::map<std::string, std::any>& in, std::vector<uint8_t>& out, const uint16_t version) const;
         };
 
         class CanDatabase{
@@ -145,8 +178,8 @@ namespace udpcan{
                 std::vector<std::string> getSignalNames() const;
                 std::map<std::string, ENumType> getSignalTypes() const;
                 
-                uint32_t decode(const Bitarray& message_all_bits, std::map<std::string, std::any>& out) const;
-                uint32_t encode(const uint8_t id, const std::map<std::string, std::any>& in, Bitarray& all_out) const;
+                uint32_t decode(const std::vector<uint8_t>& message_all, std::map<std::string, std::any>& out) const;
+                uint32_t encode(const uint8_t id, const std::map<std::string, std::any>& in, std::vector<uint8_t>& all_out) const;
         };
     };
 };

@@ -63,7 +63,7 @@ target_link_directories(udpcan-can-test PRIVATE
 
 )
 
-################## test ##################
+################## tocsv ##################
 
 add_executable(tocsv ${SOURCES} ./src/tocsv.cpp)
 

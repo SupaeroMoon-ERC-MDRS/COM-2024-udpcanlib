@@ -24,8 +24,8 @@
 #define CAN_E_UNKNOWN_MSG_ID (uint32_t)1033
 #define CAN_E_PARTIAL_MSG (uint32_t)1034
 #define CAN_E_I_KEYERR (uint32_t)1035
-
 #define CAN_E_I_SIGNAMES (uint32_t)1036
+#define CAN_E_VECTOR_LEN (uint32_t)1037
 
 
 #define CAN_E_WRAPPER_NOT_INITIALIZED (uint32_t)1040
@@ -34,3 +34,4 @@
 
 #define CAN_E_FW_IF_ERR(func) {res = func; if(res != CAN_E_SUCCESS) return res;}
 #define DECODE_SIG(ctype, enumtype) if(sig.second.num_type_id == ENumType::enumtype){ctype v = 0; CAN_E_FW_IF_ERR(sig.second.decode(message_payload_bits, v)) out[sig.first] = v;}
+#define DECODE_VEC_SIG(ctype, enumtype) if(sig.num_type_id == ENumType::enumtype){std::vector<ctype> v; CAN_E_FW_IF_ERR(sig.decode(message_payload, v, start_pos, end_pos)) out[sig.name] = v;}

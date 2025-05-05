@@ -2,20 +2,14 @@
 
 using namespace udpcan::internal;
 
-// need separate vector signals that are pretty much a copy in terms of holder type determinations
-// except they read a length first then length times the number
-// but not with bitmask, just elementary 8 16 32 64 size numbers
-
-// messages have normal signal maps and vector signal maps. Size of message is always zero if it has vector message
-// if size 0 then candatabase.cpp:93 does a size determination (seek then return) to find the end of this message 
-// aka messages dont have to be split int the input already
-
-CanMessageDesc::CanMessageDesc():signals({}),id(0),message_length(0){
+CanMessageDesc::CanMessageDesc():signals({}),vector_signals({}),id(0),message_length(0){
 
 }
 
 CanMessageDesc::~CanMessageDesc(){
     signals.clear();
+    vector_signals.clear();
+    name.clear();
 }
 
 uint32_t CanMessageDesc::parse(std::ifstream& in, const uint64_t eof){
@@ -38,13 +32,26 @@ uint32_t CanMessageDesc::parse(std::ifstream& in, const uint64_t eof){
     while(true){
         res = seekUntil(in, msg_eof, "SG_");
         if(res != CAN_E_SUCCESS){
-            if(signals.empty()) return CAN_E_FILE_UNEXPECTED_EOF;
+            if(signals.empty() && vector_signals.empty()) return CAN_E_FILE_UNEXPECTED_EOF;
             return CAN_E_SUCCESS;
         }
 
-        CanSignalDesc desc(message_length);
-        CAN_E_FW_IF_ERR(desc.parse(in, msg_eof))
-        signals[desc.name] = desc;
+        uint64_t pos = in.tellg();
+        in.seekg(pos - 1);
+        bool is_vec = in.peek() == 'V';
+        in.seekg(pos);
+
+        if(is_vec){
+            CanVectorSignalDesc desc;
+            CAN_E_FW_IF_ERR(desc.parse(in, msg_eof))
+            name_vector_id[desc.name] = vector_signals.size();
+            vector_signals.push_back(desc);
+        }
+        else{
+            CanSignalDesc desc(message_length);
+            CAN_E_FW_IF_ERR(desc.parse(in, msg_eof))
+            signals[desc.name] = desc;
+        }
     }
 }
 
@@ -62,67 +69,177 @@ std::map<std::string, ENumType> CanMessageDesc::getSignalTypes() const {
     return ret;
 }
 
-uint32_t CanMessageDesc::decode(const Bitarray& message_payload_bits, std::map<std::string, std::any>& out) const{
+uint32_t CanMessageDesc::decode(const std::vector<uint8_t>& message_payload, std::map<std::string, std::any>& out) const{
     uint32_t res = CAN_E_SUCCESS;
-    for(const std::pair<std::string, CanSignalDesc> sig : signals){
-        DECODE_SIG(float, NF32)
-        DECODE_SIG(uint8_t, NU8)
-        DECODE_SIG(uint16_t, NU16)
-        DECODE_SIG(uint32_t, NU32)
-        DECODE_SIG(uint64_t, NU64)
-        DECODE_SIG(int8_t, NI8)
-        DECODE_SIG(int16_t, NI16)
-        DECODE_SIG(int32_t, NI32)
-        DECODE_SIG(int64_t, NI64)
+    if(!signals.empty()){
+        Bitarray message_payload_bits(message_payload);
+        for(const std::pair<std::string, CanSignalDesc> sig : signals){
+            DECODE_SIG(float, NF32)
+            DECODE_SIG(uint8_t, NU8)
+            DECODE_SIG(uint16_t, NU16)
+            DECODE_SIG(uint32_t, NU32)
+            DECODE_SIG(uint64_t, NU64)
+            DECODE_SIG(int8_t, NI8)
+            DECODE_SIG(int16_t, NI16)
+            DECODE_SIG(int32_t, NI32)
+            DECODE_SIG(int64_t, NI64)
+        }
+    }
+    if(vector_signals.empty()){
+        uint32_t start_pos = message_length * 8;
+        uint32_t end_pos;
+        for(const CanVectorSignalDesc& sig : vector_signals){
+            DECODE_VEC_SIG(float, NF32)
+            DECODE_VEC_SIG(uint8_t, NU8)
+            DECODE_VEC_SIG(uint16_t, NU16)
+            DECODE_VEC_SIG(uint32_t, NU32)
+            DECODE_VEC_SIG(uint64_t, NU64)
+            DECODE_VEC_SIG(int8_t, NI8)
+            DECODE_VEC_SIG(int16_t, NI16)
+            DECODE_VEC_SIG(int32_t, NI32)
+            DECODE_VEC_SIG(int64_t, NI64)
+            start_pos = end_pos;
+        }
     }
     return res;
 }
 
-uint32_t CanMessageDesc::encode(const std::map<std::string, std::any>& in, Bitarray& out, const uint16_t version) const{
-    Bitarray msg = Bitarray(message_length);
-    for(const std::pair<std::string, std::any> p : in){
-        Bitarray sig = Bitarray({});
-        uint32_t res = CAN_E_I_NO_SUCH_MSG;
+uint32_t CanMessageDesc::encode(const std::map<std::string, std::any>& in, std::vector<uint8_t>& out, const uint16_t version) const{
+    out.push_back(id);
+    if(!signals.empty()){
+        Bitarray msg = Bitarray(message_length);
+        for(const std::pair<std::string, std::any> p : in){
+            Bitarray sig = Bitarray({});
+            uint32_t res = CAN_E_I_NO_SUCH_MSG;
 
-        if(signals.at(p.first).num_type_id == ENumType::NU8){
-            res = signals.at(p.first).encode<uint8_t>(p.second, sig);
-        }
-        else if(signals.at(p.first).num_type_id == ENumType::NU16){
-            res = signals.at(p.first).encode<uint16_t>(p.second, sig);
-        }
-        else if(signals.at(p.first).num_type_id == ENumType::NU32){
-            res = signals.at(p.first).encode<uint32_t>(p.second, sig);
-        }
-        else if(signals.at(p.first).num_type_id == ENumType::NU64){
-            res = signals.at(p.first).encode<uint64_t>(p.second, sig);
-        }
-        else if(signals.at(p.first).num_type_id == ENumType::NI8){
-            res = signals.at(p.first).encode<int8_t>(p.second, sig);
-        }
-        else if(signals.at(p.first).num_type_id == ENumType::NI16){
-            res = signals.at(p.first).encode<int16_t>(p.second, sig);
-        }
-        else if(signals.at(p.first).num_type_id == ENumType::NI32){
-            res = signals.at(p.first).encode<int32_t>(p.second, sig);
-        }
-        else if(signals.at(p.first).num_type_id == ENumType::NI64){
-            res = signals.at(p.first).encode<int64_t>(p.second, sig);
-        }
-        else if(signals.at(p.first).num_type_id == ENumType::NF32){
-            res = signals.at(p.first).encode<float>(p.second, sig);
+            if(signals.at(p.first).num_type_id == ENumType::NU8){
+                res = signals.at(p.first).encode<uint8_t>(p.second, sig);
+            }
+            else if(signals.at(p.first).num_type_id == ENumType::NU16){
+                res = signals.at(p.first).encode<uint16_t>(p.second, sig);
+            }
+            else if(signals.at(p.first).num_type_id == ENumType::NU32){
+                res = signals.at(p.first).encode<uint32_t>(p.second, sig);
+            }
+            else if(signals.at(p.first).num_type_id == ENumType::NU64){
+                res = signals.at(p.first).encode<uint64_t>(p.second, sig);
+            }
+            else if(signals.at(p.first).num_type_id == ENumType::NI8){
+                res = signals.at(p.first).encode<int8_t>(p.second, sig);
+            }
+            else if(signals.at(p.first).num_type_id == ENumType::NI16){
+                res = signals.at(p.first).encode<int16_t>(p.second, sig);
+            }
+            else if(signals.at(p.first).num_type_id == ENumType::NI32){
+                res = signals.at(p.first).encode<int32_t>(p.second, sig);
+            }
+            else if(signals.at(p.first).num_type_id == ENumType::NI64){
+                res = signals.at(p.first).encode<int64_t>(p.second, sig);
+            }
+            else if(signals.at(p.first).num_type_id == ENumType::NF32){
+                res = signals.at(p.first).encode<float>(p.second, sig);
+            }
+
+            if(res != CAN_E_SUCCESS){
+                return res;
+            }
+
+            msg |= sig;
         }
 
-        if(res != CAN_E_SUCCESS){
-            return res;
-        }
-
-        msg |= sig;
+        std::copy(msg.cbegin(), msg.cend(), std::back_inserter(out));
     }
 
-    std::vector<uint8_t> pack(message_length + 1, 0);
-    std::copy(msg.cbegin(), msg.cend(), pack.begin() + 1);
-    pack[0] = id;
-    out = Bitarray(pack);
+    if(!vector_signals.empty()){
+        for(const std::pair<std::string, std::any> p : in){
+            uint32_t res = CAN_E_I_NO_SUCH_MSG;
+            std::vector<uint8_t> sig;
+
+            if(vector_signals[name_vector_id.at(p.first)].num_type_id == ENumType::NU8){
+                res = vector_signals[name_vector_id.at(p.first)].encode<uint8_t>(p.second, sig);
+            }
+            else if(vector_signals[name_vector_id.at(p.first)].num_type_id == ENumType::NU16){
+                res = vector_signals[name_vector_id.at(p.first)].encode<uint16_t>(p.second, sig);
+            }
+            else if(vector_signals[name_vector_id.at(p.first)].num_type_id == ENumType::NU32){
+                res = vector_signals[name_vector_id.at(p.first)].encode<uint32_t>(p.second, sig);
+            }
+            else if(vector_signals[name_vector_id.at(p.first)].num_type_id == ENumType::NU64){
+                res = vector_signals[name_vector_id.at(p.first)].encode<uint64_t>(p.second, sig);
+            }
+            else if(vector_signals[name_vector_id.at(p.first)].num_type_id == ENumType::NI8){
+                res = vector_signals[name_vector_id.at(p.first)].encode<int8_t>(p.second, sig);
+            }
+            else if(vector_signals[name_vector_id.at(p.first)].num_type_id == ENumType::NI16){
+                res = vector_signals[name_vector_id.at(p.first)].encode<int16_t>(p.second, sig);
+            }
+            else if(vector_signals[name_vector_id.at(p.first)].num_type_id == ENumType::NI32){
+                res = vector_signals[name_vector_id.at(p.first)].encode<int32_t>(p.second, sig);
+            }
+            else if(vector_signals[name_vector_id.at(p.first)].num_type_id == ENumType::NI64){
+                res = vector_signals[name_vector_id.at(p.first)].encode<int64_t>(p.second, sig);
+            }
+            else if(vector_signals[name_vector_id.at(p.first)].num_type_id == ENumType::NF32){
+                res = vector_signals[name_vector_id.at(p.first)].encode<float>(p.second, sig);
+            }
+
+            if(res != CAN_E_SUCCESS){
+                return res;
+            }
+            std::copy(sig.cbegin(), sig.cend(), std::back_inserter(out));
+        }
+    }
+    
+    return CAN_E_SUCCESS;
+}
+
+//////////////////////////////////////////////////////////////////////
+
+// need separate vector signals that are pretty much a copy in terms of holder type determinations
+// except they read a length first then length times the number
+// but not with bitmask, just elementary 8 16 32 64 size numbers
+
+// messages have normal signal maps and vector signal maps. Vector messages are not SG_ but VSG_
+
+CanVectorSignalDesc::CanVectorSignalDesc():num_type_id(ENumType::NU8),name(""){
+
+}
+
+CanVectorSignalDesc::~CanVectorSignalDesc(){
+    name.clear();
+}
+
+uint32_t CanVectorSignalDesc::parse(std::ifstream& in, const uint64_t eof){
+    in.seekg((uint64_t)in.tellg() + 3u);
+    
+    uint32_t res;
+    CAN_E_FW_IF_ERR(readNextString(in, eof, name))
+
+    uint32_t tmp;
+    CAN_E_FW_IF_ERR(readNextNumeric(in, eof, tmp))
+    num_type_id = static_cast<ENumType>((int32_t)tmp);
+
+    return CAN_E_SUCCESS;
+}
+
+template<typename NumType>
+uint32_t CanVectorSignalDesc::decode(const std::vector<uint8_t>& message_payload, std::vector<NumType>& out, const uint32_t start_pos, uint32_t& end_pos) const {
+    if(start_pos + 4 >= message_payload.size()) return CAN_E_VECTOR_LEN;
+    uint32_t len = *(uint32_t *)(&message_payload[start_pos]);
+    end_pos = start_pos + 4 + len * type_size.at(num_type_id);
+
+    if(end_pos + type_size.at(num_type_id) >= message_payload.size()) return CAN_E_VECTOR_LEN;
+    out.resize(len);
+    std::copy((NumType *)(message_payload.data() + start_pos + 4), (NumType *)(message_payload.data() + end_pos), out.data());
+    return CAN_E_SUCCESS;
+}
+
+template<typename NumType>
+uint32_t CanVectorSignalDesc::encode(const std::any val, std::vector<uint8_t>& out) const {
+    std::vector<NumType> vec_view = std::any_cast<std::vector<NumType>>(val);
+    out.resize(4 + vec_view.size() * type_size.at(num_type_id));
+    *(uint32_t *)(out.data()) = (uint32_t)vec_view.size();
+    std::copy((uint8_t *)vec_view.data(), (uint8_t *)(vec_view.data() + vec_view.size()), out.data() + 4);
     return CAN_E_SUCCESS;
 }
 

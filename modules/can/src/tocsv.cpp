@@ -84,7 +84,7 @@ int32_t main(int32_t argc, char** argv){
         in.read((char *)vec.data(), len);
 
         std::map<std::string, std::any> out;
-        CAN_E_FW_IF_ERR(db.decode(Bitarray(vec), out))
+        CAN_E_FW_IF_ERR(db.decode(vec, out))
 
         for(uint32_t i = 0; i < csv_header.size(); i++){
             if(out.find(csv_header[i]) != out.end()){
