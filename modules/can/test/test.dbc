@@ -1,0 +1,17 @@
+VERSION 0
+ 
+BO_ 15 TestMessageA: 4
+  SG_ AsigA : 0|8@1+ (1,0) [0|255] ""
+  SG_ AsigB : 8|8@1+ (1,0) [0|255] ""
+  SG_ AsigC : 16|8@1+ (1,0) [0|255] ""
+  SG_ AsigD : 24|8@1+ (1,0) [0|255] ""
+  VSG_ AsigE : 0 ""
+  VSG_ AsigF : 6 ""
+ 
+BO_ 14 TestMessageB: 4
+  SG_ BsigA : 0|8@1+ (1,0) [0|255] ""
+  SG_ BsigB : 8|8@1+ (1,0) [0|255] ""
+  SG_ BsigC : 16|8@1+ (1,0) [0|255] ""
+  SG_ BsigD : 24|8@1+ (1,0) [0|255] ""
+  VSG_ BsigE : 0 ""
+  VSG_ BsigF : 6 ""

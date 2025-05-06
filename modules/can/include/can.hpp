@@ -143,7 +143,6 @@ namespace udpcan{
             private:
                 std::map<std::string, CanSignalDesc> signals;
                 std::vector<CanVectorSignalDesc> vector_signals;
-                std::map<std::string, uint32_t> name_vector_id;
 
             public:
                 uint8_t id;
