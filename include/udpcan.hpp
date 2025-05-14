@@ -7,7 +7,8 @@
 #include "message_definitions.hpp"
 
 #define UDPCAN_PORT 12121u
-#define PUSH_MSG(ctype, member)if(std::is_same<T,ctype>::value){res = member.access([this](const ctype& msg){internal::CanMsgBytes canmsg(member.getId(), {});std::map<std::string, std::any> data = {};msg.saveTo(data);internal::Bitarray arr({});database.encode(canmsg.id, data, arr);canmsg.all_bytes.insert(canmsg.all_bytes.cbegin(), arr.get().cbegin(), arr.get().cend());udp.push(canmsg.all_bytes);});}
+//#define PUSH_MSG(ctype, member)if(std::is_same<T,ctype>::value){res = member.access([this](const ctype& msg){internal::CanMsgBytes canmsg(member.getId(), {});std::map<std::string, std::any> data = {};msg.saveTo(data);std::vector<uint8_t> arr = {};database.encode(canmsg.id, data, arr);canmsg.all_bytes.insert(canmsg.all_bytes.cbegin(), arr.cbegin(), arr.cend());udp.push(canmsg.all_bytes);});}
+#define PUSH_MSG(ctype, member)if(std::is_same<T,ctype>::value){res = member.access([this](const ctype& msg){;std::map<std::string, std::any> data = {};msg.saveTo(data);std::vector<uint8_t> arr = {};database.encode(member.getId(), data, arr);udp.push(arr);});}
 
 namespace udpcan{
 
