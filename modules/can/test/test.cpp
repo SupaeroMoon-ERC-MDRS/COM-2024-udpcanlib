@@ -1,5 +1,6 @@
 #include "can.hpp"
 #include "message_definitions.hpp"
+#include <iostream>
 
 using namespace udpcan::internal;
 
@@ -52,6 +53,11 @@ void vector_test(){
     std::copy(enc2.cbegin(), enc2.cend(), std::back_inserter(enc));
 
     std::map<std::string, std::any> out = {};
+    std::cout << "[";
+    for(auto v : enc){
+        std::cout << (uint16_t)v << ",";
+    }
+    std::cout << "]" << std::endl;
     res = db.decode(enc, out);
 
     uint8_t asiga_dec = std::any_cast<uint8_t>(out["AsigA"]);

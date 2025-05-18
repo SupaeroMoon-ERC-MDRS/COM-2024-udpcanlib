@@ -137,6 +137,73 @@ namespace udpcan{
             return CAN_E_SUCCESS;
         }
 
+    };
+    #pragma pack(pop)
+
+    #pragma pack(push,1)
+    struct RaspiState{
+        float rpi_3v7_wl_sw_a;
+        float rpi_3v3_sys_a;
+        float rpi_1v8_sys_a;
+        float rpi_1v1_sys_a;
+        float rpi_0v8_sw_a;
+        float vdd_core_a;
+        float rpi_3v7_wl_sw_v;
+        float rpi_3v3_sys_v;
+        float rpi_1v8_sys_v;
+        float rpi_1v1_sys_v;
+        float rpi_0v8_sw_v;
+        float vdd_core_v;
+        float rpi_ext5v_v;
+        float rpi_temp;
+        float rpi_cpu;
+        float rpi_mem;
+
+        uint32_t updateFrom(const std::map<std::string, std::any>& data){
+            try{
+                rpi_3v7_wl_sw_a = std::any_cast<float>(data.at("rpi_3v7_wl_sw_a"));
+                rpi_3v3_sys_a = std::any_cast<float>(data.at("rpi_3v3_sys_a"));
+                rpi_1v8_sys_a = std::any_cast<float>(data.at("rpi_1v8_sys_a"));
+                rpi_1v1_sys_a = std::any_cast<float>(data.at("rpi_1v1_sys_a"));
+                rpi_0v8_sw_a = std::any_cast<float>(data.at("rpi_0v8_sw_a"));
+                vdd_core_a = std::any_cast<float>(data.at("vdd_core_a"));
+                rpi_3v7_wl_sw_v = std::any_cast<float>(data.at("rpi_3v7_wl_sw_v"));
+                rpi_3v3_sys_v = std::any_cast<float>(data.at("rpi_3v3_sys_v"));
+                rpi_1v8_sys_v = std::any_cast<float>(data.at("rpi_1v8_sys_v"));
+                rpi_1v1_sys_v = std::any_cast<float>(data.at("rpi_1v1_sys_v"));
+                rpi_0v8_sw_v = std::any_cast<float>(data.at("rpi_0v8_sw_v"));
+                vdd_core_v = std::any_cast<float>(data.at("vdd_core_v"));
+                rpi_ext5v_v = std::any_cast<float>(data.at("rpi_ext5v_v"));
+                rpi_temp = std::any_cast<float>(data.at("rpi_temp"));
+                rpi_cpu = std::any_cast<float>(data.at("rpi_cpu"));
+                rpi_mem = std::any_cast<float>(data.at("rpi_mem"));
+            }
+            catch(...){
+                return CAN_E_I_KEYERR;
+            }
+            return CAN_E_SUCCESS;
+        }
+
+        uint32_t saveTo(std::map<std::string, std::any>& data) const{
+            data.clear();
+            data["rpi_3v7_wl_sw_a"] = rpi_3v7_wl_sw_a;
+            data["rpi_3v3_sys_a"] = rpi_3v3_sys_a;
+            data["rpi_1v8_sys_a"] = rpi_1v8_sys_a;
+            data["rpi_1v1_sys_a"] = rpi_1v1_sys_a;
+            data["rpi_0v8_sw_a"] = rpi_0v8_sw_a;
+            data["vdd_core_a"] = vdd_core_a;
+            data["rpi_3v7_wl_sw_v"] = rpi_3v7_wl_sw_v;
+            data["rpi_3v3_sys_v"] = rpi_3v3_sys_v;
+            data["rpi_1v8_sys_v"] = rpi_1v8_sys_v;
+            data["rpi_1v1_sys_v"] = rpi_1v1_sys_v;
+            data["rpi_0v8_sw_v"] = rpi_0v8_sw_v;
+            data["vdd_core_v"] = vdd_core_v;
+            data["rpi_ext5v_v"] = rpi_ext5v_v;
+            data["rpi_temp"] = rpi_temp;
+            data["rpi_cpu"] = rpi_cpu;
+            data["rpi_mem"] = rpi_mem;
+            return CAN_E_SUCCESS;
+        }
 
     };
     #pragma pack(pop)

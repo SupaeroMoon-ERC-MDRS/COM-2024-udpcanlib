@@ -3,7 +3,8 @@
 using namespace udpcan;
 
 NetworkHandler::NetworkHandler():
-    remote_msg(15)
+    remote_msg(15),
+    raspi_state(30)
 {
 }
 
@@ -80,6 +81,11 @@ void NetworkHandler::thread(){
 
             if(msg.id == remote_msg.getId()){
                 res = remote_msg.update([&out](RemoteControl& remote){
+                    remote.updateFrom(out);
+                });
+            }
+            else if(msg.id == raspi_state.getId()){
+                res = raspi_state.update([&out](RaspiState& remote){
                     remote.updateFrom(out);
                 });
             }

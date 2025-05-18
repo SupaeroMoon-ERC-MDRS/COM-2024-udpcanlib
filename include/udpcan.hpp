@@ -14,8 +14,8 @@ namespace udpcan{
 
     class NetworkHandler{
         private:
-            // TODO storage for latest received messages
             MessageWrapper<RemoteControl> remote_msg;
+            MessageWrapper<RaspiState> raspi_state;
 
             internal::CanDatabase database;
             internal::UDP udp;
@@ -44,12 +44,16 @@ namespace udpcan{
                 if(std::is_same<T,RemoteControl>::value){
                     return &remote_msg;
                 }
+                if(std::is_same<T,RaspiState>::value){
+                    return &raspi_state;
+                }
             }
 
             template<typename T>
             uint32_t push(){
                 uint32_t res = CAN_E_I_NO_SUCH_MSG;
                 PUSH_MSG(RemoteControl, remote_msg)
+                PUSH_MSG(RaspiState, raspi_state)
                 return res;
             }
 
