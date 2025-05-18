@@ -2,7 +2,7 @@
 
 int32_t main(){
     udpcan::internal::UDP udp;
-    udp.init(0, {{15,8}}, 8000);
+    udp.init(0, 8000, NodeType::ROVER);
     while(true){
         if(udp.isInitialized() && !udp.needReset()){
             udp.recv();
@@ -10,7 +10,7 @@ int32_t main(){
             udp.flush();
         }
         else{
-            udp.reset(0, {{15,8}}, 8000);
+            udp.reset(0, 8000);
         }
     }
     return 0;

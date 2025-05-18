@@ -83,13 +83,15 @@ int32_t main(int32_t argc, char** argv){
         std::vector<uint8_t> vec;
         in.read((char *)vec.data(), len);
 
-        std::map<std::string, std::any> out;
+        std::vector<std::pair<uint8_t, std::map<std::string, std::any>>> out;
         CAN_E_FW_IF_ERR(db.decode(vec, out))
 
         for(uint32_t i = 0; i < csv_header.size(); i++){
-            if(out.find(csv_header[i]) != out.end()){
-                last_line[i] = out[csv_header[i]];
-                has_value[i] = true;
+            for(const std::pair<uint8_t, std::map<std::string, std::any>>& p : out){
+                if(p.second.find(csv_header[i]) != p.second.end()){
+                    last_line[i] = p.second.at(csv_header[i]);
+                    has_value[i] = true;
+                }
             }
         }        
         writeLine(of, last_line, signals, signal_types);

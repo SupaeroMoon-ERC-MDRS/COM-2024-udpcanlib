@@ -32,7 +32,7 @@ namespace udpcan{
 
             uint32_t parse(const std::string& fn);
 
-            uint32_t init();
+            uint32_t init(const int32_t type);
             uint32_t reset();
             uint32_t close();
 
@@ -41,10 +41,10 @@ namespace udpcan{
 
             template<typename T>
             MessageWrapper<T>* get(){
-                if(std::is_same<T,RemoteControl>::value){
+                if constexpr (std::is_same<T,RemoteControl>::value){
                     return &remote_msg;
                 }
-                if(std::is_same<T,RaspiState>::value){
+                if constexpr (std::is_same<T,RaspiState>::value){
                     return &raspi_state;
                 }
             }

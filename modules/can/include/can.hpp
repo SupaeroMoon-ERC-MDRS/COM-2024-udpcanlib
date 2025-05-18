@@ -177,7 +177,7 @@ namespace udpcan{
                 std::vector<std::string> getSignalNames() const;
                 std::map<std::string, ENumType> getSignalTypes() const;
                 
-                uint32_t decode(const std::vector<uint8_t>& message_all, std::map<std::string, std::any>& out) const;
+                uint32_t decode(const std::vector<uint8_t>& message_all, std::vector<std::pair<uint8_t, std::map<std::string, std::any>>>& out) const;
                 uint32_t encode(const uint8_t id, const std::map<std::string, std::any>& in, std::vector<uint8_t>& all_out) const;
         };
     };

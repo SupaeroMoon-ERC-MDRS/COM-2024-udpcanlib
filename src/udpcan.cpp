@@ -12,12 +12,12 @@ uint32_t NetworkHandler::parse(const std::string& fn){
     return database.parse(fn);
 }
 
-uint32_t NetworkHandler::init(){
-    return udp.init(database.dbc_version, database.getMessageSizes(), UDPCAN_PORT);
+uint32_t NetworkHandler::init(const int32_t type){
+    return udp.init(database.dbc_version, UDPCAN_PORT, static_cast<NodeType>(type));
 }
 
 uint32_t NetworkHandler::reset(){
-    return udp.reset(database.dbc_version, database.getMessageSizes(), UDPCAN_PORT);
+    return udp.reset(database.dbc_version, UDPCAN_PORT);
 }
 
 uint32_t NetworkHandler::close(){
@@ -61,33 +61,35 @@ void NetworkHandler::thread(){
     while (!stop_thr){
 		std::unique_lock<std::mutex> lk(thr_mtx);
 
-        std::vector<internal::CanMsgBytes> msgs;
+        std::vector<RecvPacket> packets;
         if(udp.isInitialized() && !udp.needReset()){
             udp.tryConnectRemote();
             udp.recv();
-            udp.getMessages(msgs);
+            udp.getPackets(packets);
         }
         else{
-            udp.reset(database.dbc_version, database.getMessageSizes(), UDPCAN_PORT);
+            udp.reset(database.dbc_version, UDPCAN_PORT);
             continue;
         }
 
-        for(internal::CanMsgBytes msg : msgs){
-            std::map<std::string, std::any> out = {};
-            uint32_t res = database.decode(msg.all_bytes, out);
+        for(const RecvPacket& packet : packets){
+            std::vector<std::pair<uint8_t, std::map<std::string, std::any>>> out = {};
+            uint32_t res = database.decode(packet.buf, out);
             if(res != CAN_E_SUCCESS){
                 continue;
             }
 
-            if(msg.id == remote_msg.getId()){
-                res = remote_msg.update([&out](RemoteControl& remote){
-                    remote.updateFrom(out);
-                });
-            }
-            else if(msg.id == raspi_state.getId()){
-                res = raspi_state.update([&out](RaspiState& remote){
-                    remote.updateFrom(out);
-                });
+            for(const std::pair<uint8_t, std::map<std::string, std::any>> &p : out){
+                if(p.first == remote_msg.getId()){
+                    res = remote_msg.update([&p](RemoteControl& remote){
+                        remote.updateFrom(p.second);
+                    });
+                }
+                else if(p.first == raspi_state.getId()){
+                    res = raspi_state.update([&p](RaspiState& remote){
+                        remote.updateFrom(p.second);
+                    });
+                }
             }
         }
 

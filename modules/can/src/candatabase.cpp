@@ -79,7 +79,7 @@ std::vector<std::pair<uint8_t, uint32_t>> CanDatabase::getMessageSizes() const{
     return ret;
 }
 
-uint32_t CanDatabase::decode(const std::vector<uint8_t>& message_all, std::map<std::string, std::any>& out) const{
+uint32_t CanDatabase::decode(const std::vector<uint8_t>& message_all, std::vector<std::pair<uint8_t, std::map<std::string, std::any>>>& out) const{
     uint32_t pos = 0;
     out.clear();
 
@@ -96,7 +96,9 @@ uint32_t CanDatabase::decode(const std::vector<uint8_t>& message_all, std::map<s
         }
 
         uint32_t msg_size;
-        messages.at(msg_id).decode(std::vector<uint8_t>(message_all.cbegin() + pos, message_all.cend()), out, msg_size);
+        std::map<std::string, std::any> msg_out;
+        messages.at(msg_id).decode(std::vector<uint8_t>(message_all.cbegin() + pos, message_all.cend()), msg_out, msg_size);
+        out.push_back({msg_id, msg_out});
         pos += msg_size;
     }
     return CAN_E_SUCCESS;

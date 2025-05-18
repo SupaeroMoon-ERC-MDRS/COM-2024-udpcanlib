@@ -15,7 +15,7 @@ int32_t main(){
         return -1;
     }
 
-    res = nh.init();
+    res = nh.init(NodeType::ROVER);
     if(res != 0){
         std::cout << "Failed to init, error code was " << res << std::endl;
         return -1;

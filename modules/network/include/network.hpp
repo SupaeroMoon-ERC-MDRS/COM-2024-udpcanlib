@@ -8,52 +8,36 @@
 
 #include "net.hpp"
 
-#define REMOTE_IP "10.188.69.148"
+#define REMOTE_IP "10.188.69.148" // 255.255.255.255
 #define REMOTE_PORT 12122u
 
 namespace udpcan{
     namespace internal{
 
-        struct CanMsgBytes{
-            uint8_t id;
-            std::vector<uint8_t> all_bytes;
-
-            CanMsgBytes(const uint8_t id, const std::vector<uint8_t> all_bytes);
-            ~CanMsgBytes();
-        };
-
         class UDP{
             private:
                 Net net;
-
-                std::vector<std::pair<uint8_t, uint32_t>> expect_can_ids;
-
                 sockaddr_in remote_addr;
-
-                std::vector<CanMsgBytes> in_messages;
-
-                uint32_t readPackets(const std::vector<RecvPacket>& packets);
+                NodeType type;
 
             public:
                 UDP();
                 ~UDP();
 
-                inline uint32_t init(const uint16_t dbc_version, const std::vector<std::pair<uint8_t, uint32_t>>& can_ids, const uint16_t port){
-                    expect_can_ids = can_ids;
-
+                inline uint32_t init(const uint16_t dbc_version, const uint16_t port, const NodeType node){
+                    type = node;
                     remote_addr.sin_family = AF_INET;
                     remote_addr.sin_port = htons(REMOTE_PORT);
                     remote_addr.sin_addr.s_addr = inet_addr(REMOTE_IP);
 
-                    return net.init(dbc_version, port, NodeType::ROVER);
+                    return net.init(dbc_version, port, node);
                 }
-                inline uint32_t reset(const uint16_t dbc_version, const std::vector<std::pair<uint8_t, uint32_t>>& can_ids, const uint16_t port){
-                    expect_can_ids = can_ids;
 
-                    return net.reset(dbc_version, port, NodeType::ROVER);
+                inline uint32_t reset(const uint16_t dbc_version, const uint16_t port){
+                    return net.reset(dbc_version, port, type);
                 }
+
                 inline uint32_t shutdown(){
-                    in_messages.clear();
                     return net.shutdown();
                 }
 
@@ -66,10 +50,12 @@ namespace udpcan{
                 }
 
                 uint32_t recv();
-                uint32_t getMessages(std::vector<CanMsgBytes>& messages);
+                uint32_t getPackets(std::vector<RecvPacket>& packets);
+
                 inline uint32_t push(const std::vector<uint8_t>& message){
                     return net.push(message);
                 }
+
                 inline uint32_t flush(){
                     return net.flush();
                 }
@@ -80,6 +66,7 @@ namespace udpcan{
                     }
                     return net.sendConn(REMOTE_PORT);
                 }
+
                 inline uint32_t disconnectRemote(){
                     return net.sendConn(REMOTE_PORT);
                 }
