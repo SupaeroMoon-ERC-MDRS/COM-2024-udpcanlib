@@ -1,7 +1,7 @@
 #include "can.hpp"
 
 bool udpcan::internal::isValidString(const char c){
-    return std::isalpha(c) || c == '_' || c == '+' || c == '-';
+    return std::isalpha(c) || c == '_' || c == '+' || c == '-' || std::isdigit(c);
 }
 
 uint32_t udpcan::internal::openRead(const std::string& fn, uint64_t& end, std::ifstream& in){
