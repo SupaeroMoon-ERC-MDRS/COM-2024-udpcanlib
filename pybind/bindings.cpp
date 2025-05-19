@@ -34,7 +34,7 @@ void declare_msgwrap(py::module& m, const std::string& prefix){
 
 PYBIND11_MODULE(udpcanpy, m){
 
-    py::class_<std::map<std::string, std::any>>(m, "AnyMap", py::module_local())
+    /*py::class_<std::map<std::string, std::any>>(m, "AnyMap", py::module_local())
         .def(py::init<>());
 
     py::class_<udpcan::internal::Bitarray, std::shared_ptr<udpcan::internal::Bitarray> >(m, "Bitarray", py::module_local())
@@ -43,7 +43,7 @@ PYBIND11_MODULE(udpcanpy, m){
     py::class_<udpcan::internal::CanDatabase, std::shared_ptr<udpcan::internal::CanDatabase> >(m, "CanDatabase", py::module_local())
         .def(py::init<>())
         .def_readwrite("dbc_version", &udpcan::internal::CanDatabase::dbc_version)
-        .def("encode", &udpcan::internal::CanDatabase::encode);
+        .def("encode", &udpcan::internal::CanDatabase::encode);*/
 
     py::class_<udpcan::RemoteControl, std::shared_ptr<udpcan::RemoteControl> >(m, "RemoteControl", py::module_local())
         .def(py::init<>())
@@ -65,7 +65,27 @@ PYBIND11_MODULE(udpcanpy, m){
         .def_readwrite("thumb_right_x", &udpcan::RemoteControl::thumb_right_x)
         .def_readwrite("thumb_right_y", &udpcan::RemoteControl::thumb_right_y);
 
+    py::class_<udpcan::RaspiState, std::shared_ptr<udpcan::RaspiState> >(m, "RaspiState", py::module_local())
+        .def(py::init<>())
+        .def_readwrite("rpi_3v7_wl_sw_a", &udpcan::RaspiState::rpi_3v7_wl_sw_a)
+        .def_readwrite("rpi_3v3_sys_a", &udpcan::RaspiState::rpi_3v3_sys_a)
+        .def_readwrite("rpi_1v8_sys_a", &udpcan::RaspiState::rpi_1v8_sys_a)
+        .def_readwrite("rpi_1v1_sys_a", &udpcan::RaspiState::rpi_1v1_sys_a)
+        .def_readwrite("rpi_0v8_sw_a", &udpcan::RaspiState::rpi_0v8_sw_a)
+        .def_readwrite("vdd_core_a", &udpcan::RaspiState::vdd_core_a)
+        .def_readwrite("rpi_3v7_wl_sw_v", &udpcan::RaspiState::rpi_3v7_wl_sw_v)
+        .def_readwrite("rpi_3v3_sys_v", &udpcan::RaspiState::rpi_3v3_sys_v)
+        .def_readwrite("rpi_1v8_sys_v", &udpcan::RaspiState::rpi_1v8_sys_v)
+        .def_readwrite("rpi_1v1_sys_v", &udpcan::RaspiState::rpi_1v1_sys_v)
+        .def_readwrite("rpi_0v8_sw_v", &udpcan::RaspiState::rpi_0v8_sw_v)
+        .def_readwrite("vdd_core_v", &udpcan::RaspiState::vdd_core_v)
+        .def_readwrite("rpi_ext5v_v", &udpcan::RaspiState::rpi_ext5v_v)
+        .def_readwrite("rpi_temp", &udpcan::RaspiState::rpi_temp)
+        .def_readwrite("rpi_cpu", &udpcan::RaspiState::rpi_cpu)
+        .def_readwrite("rpi_mem", &udpcan::RaspiState::rpi_mem);
+
     declare_msgwrap<udpcan::RemoteControl>(m, "RemoteControl");
+    declare_msgwrap<udpcan::RaspiState>(m, "RaspiState");
 
     py::class_<udpcan::NetworkHandler, std::shared_ptr<udpcan::NetworkHandler> >(m, "NetworkHandler", py::module_local())
         .def(py::init<>())
@@ -77,5 +97,7 @@ PYBIND11_MODULE(udpcanpy, m){
         .def("stop", &udpcan::NetworkHandler::stop)
         .def("flush", &udpcan::NetworkHandler::flush)
         .def("getRemoteControl", [](udpcan::NetworkHandler& self){return self.get<udpcan::RemoteControl>();})
-        .def("pushRemoteControl", [](udpcan::NetworkHandler& self){return self.push<udpcan::RemoteControl>();});
+        .def("pushRemoteControl", [](udpcan::NetworkHandler& self){return self.push<udpcan::RemoteControl>();})
+        .def("getRaspiState", [](udpcan::NetworkHandler& self){return self.get<udpcan::RaspiState>();})
+        .def("pushRaspiState", [](udpcan::NetworkHandler& self){return self.push<udpcan::RaspiState>();});
 }
