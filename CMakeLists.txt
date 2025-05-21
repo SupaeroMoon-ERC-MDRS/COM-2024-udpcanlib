@@ -79,7 +79,8 @@ target_link_directories(udpcan-test PRIVATE
 )
 
 if(GENERATE_PYBIND)
-    set(pybind11_DIR /home/davidgmolnar/.local/lib/python3.10/site-packages/pybind11/share/cmake/pybind11) 
+    #set(pybind11_DIR /home/davidgmolnar/.local/lib/python3.10/site-packages/pybind11/share/cmake/pybind11) 
+    set(pybind11_DIR /usr/local/lib/python3.10/dist-packages/pybind11/share/cmake/pybind11) 
     find_package(pybind11 REQUIRED)
 
     pybind11_add_module(udpcanpy ${PY_SOURCES} ${SOURCES})
