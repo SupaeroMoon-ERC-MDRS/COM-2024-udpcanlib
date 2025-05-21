@@ -1,11 +1,13 @@
-from udpcanpy import NetworkHandler, RemoteControl
+from udpcanpy import NetworkHandler, RemoteControl, RaspiState
+from raspistatechecker import RaspiStateChecker
+from time import sleep
 
 nh = NetworkHandler()
-res = nh.parse("/home/davidgmolnar/Documents/COM-2024/COM-2024-DBC/comms.dbc")
+res = nh.parse("../../COM-2024-DBC/comms.dbc")
 if(res != 0):
     print(f"Parse {res}")
 
-res = nh.init()
+res = nh.init(0)
 if(res != 0):
     print(f"Init {res}")
 
@@ -14,10 +16,15 @@ if(res != 0):
     print(f"Start {res}")
 
 remote = nh.getRemoteControl()
+raspihandle = nh.getRaspiState()
 
 data = RemoteControl()
+raspi = RaspiState()
+
+rsc = RaspiStateChecker()
 
 while True:
+    sleep(0.001)
     res = remote.access(data)
     if res == 0:
         print(f"=================\n\
@@ -39,6 +46,14 @@ while True:
               ThumbRY: {data.thumb_right_y}\n\
                 ")
 
+    print('asd')
+    if rsc.poll(raspi):
+        print('yo')
+        raspihandle.update(raspi)
+        print('wtf')
+        nh.pushRaspiState()
+        print('hi')
+
     if data.e_stop:
         break
 
@@ -46,4 +61,4 @@ res = nh.stop()
 if(res != 0):
     print(f"Stop {res}")
 
-print("Adiós")
+print("Adios")
