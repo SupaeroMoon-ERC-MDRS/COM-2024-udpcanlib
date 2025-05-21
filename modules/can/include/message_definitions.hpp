@@ -44,13 +44,11 @@ namespace udpcan{
             }
 
             uint32_t getId(uint8_t& i){
-                std::unique_lock lk(mtx);
                 if(id == CAN_INVALID_ID) return CAN_E_WRAPPER_NOT_INITIALIZED;
                 i = id;
             }
 
             uint8_t getId(){
-                std::unique_lock lk(mtx);
                 return id;
             }
 

@@ -3,7 +3,7 @@ from raspistatechecker import RaspiStateChecker
 from time import sleep
 
 nh = NetworkHandler()
-res = nh.parse("../../COM-2024-DBC/comms.dbc")
+res = nh.parse("../../COM-2024/COM-2024-DBC/comms.dbc")
 if(res != 0):
     print(f"Parse {res}")
 
@@ -46,13 +46,10 @@ while True:
               ThumbRY: {data.thumb_right_y}\n\
                 ")
 
-    print('asd')
     if rsc.poll(raspi):
-        print('yo')
         raspihandle.update(raspi)
-        print('wtf')
         nh.pushRaspiState()
-        print('hi')
+        nh.flush()
 
     if data.e_stop:
         break

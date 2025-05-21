@@ -8,8 +8,8 @@ using namespace std::chrono_literals;
 int32_t main(){
     udpcan::NetworkHandler nh;
     uint32_t res;
-    //res = nh.parse("/home/davidgmolnar/Documents/COM-2024/COM-2024-DBC/comms.dbc");
-    res = nh.parse("C:/Users/Lenovo/Desktop/COM-2024/COM-2024-DBC/comms.dbc");
+    res = nh.parse("/home/davidgmolnar/Documents/COM-2024/COM-2024-DBC/comms.dbc");
+    //res = nh.parse("C:/Users/Lenovo/Desktop/COM-2024/COM-2024-DBC/comms.dbc");
     if(res != 0){
         std::cout << "Failed to parse, error code was " << res << std::endl;
         return -1;
@@ -28,6 +28,7 @@ int32_t main(){
     }
 
     udpcan::MessageWrapper<udpcan::RemoteControl>* remotemsg = nh.get<udpcan::RemoteControl>();
+    udpcan::MessageWrapper<udpcan::RaspiState>* raspistatemsg = nh.get<udpcan::RaspiState>();
 
     bool e_stop = false;
     while(!e_stop){
@@ -54,6 +55,14 @@ int32_t main(){
             std::cout << "ThumbRY: " << (uint16_t)remote_view.thumb_right_y; // top < bottom
             std::cout << std::endl;
         });
+
+        udpcan::RaspiState raspi;
+        raspi.rpi_1v8_sys_a = 2;
+        res = raspistatemsg->update([raspi](udpcan::RaspiState& raspi_view){
+            raspi_view = raspi;
+        });
+        nh.push<udpcan::RaspiState>();
+        nh.flush();
 
         std::this_thread::sleep_for(100ms);
 
