@@ -64,11 +64,11 @@ namespace udpcan{
                     if(net.hasPublishers(NodeType::REMOTE)){
                         return NET_E_SUCCESS;
                     }
-                    return net.sendConn(REMOTE_PORT);
+                    return net.sendConn("", REMOTE_PORT);
                 }
 
                 inline uint32_t disconnectRemote(){
-                    return net.sendConn(REMOTE_PORT);
+                    return net.sendDisc(NodeType::REMOTE);
                 }
         };
     };
