@@ -37,7 +37,7 @@ class DummyMessage:
 class RaspiStateChecker:
     __ELEC_COMMAND = ["vcgencmd", "pmic_read_adc"]
     __TEMP_COMMAND = ["vcgencmd", "measure_temp"]
-    __TOP_COMMAND = ["top", "-b -n 1 -o -PID | tail -n +7 | awk '{print $1,$9,$10}'"]
+    __TOP_COMMAND = ['top', '-b', '-n', '1', '-o', 'PID']
 
     __POLL_INTERVAL_MS = 10
     __POLL_INTERVAL = __POLL_INTERVAL_MS * 1000 * 1000
@@ -103,7 +103,7 @@ class RaspiStateChecker:
                 print(f"The command {RaspiStateChecker.__ELEC_COMMAND} failed with: {res.stderr}")
             res.check_returncode()
             RaspiStateChecker.__process_elec(raspi_state_msg, res.stdout)
-        except BaseException:
+        except Exception:
             print(f"The command {RaspiStateChecker.__ELEC_COMMAND} failed")
             
         try:
@@ -112,19 +112,17 @@ class RaspiStateChecker:
                 print(f"The command {RaspiStateChecker.__TEMP_COMMAND} failed with: {res.stderr}")
             res.check_returncode()
             RaspiStateChecker.__process_temp(raspi_state_msg, res.stdout)
-        except BaseException:
+        except Exception:
             print(f"The command {RaspiStateChecker.__TEMP_COMMAND} failed")
 
         try:
-            # res = run(RaspiStateChecker.__TOP_COMMAND, capture_output=True)
-
-            res = run(['top', '-b', '-n', '1', '-o', 'PID'], capture_output=True)
+            res = run(RaspiStateChecker.__TOP_COMMAND, capture_output=True)
 
             if res.returncode:
                 print(f"The command {RaspiStateChecker.__TOP_COMMAND} failed with: {res.stderr}")
             res.check_returncode()
             RaspiStateChecker.__process_top(raspi_state_msg, res.stdout)
-        except BaseException as e:
+        except Exception as e:
             print(f"The command {RaspiStateChecker.__TOP_COMMAND} failed {e}")
 
         return True
