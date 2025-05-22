@@ -30,11 +30,11 @@ namespace udpcan{
                     remote_addr.sin_port = htons(REMOTE_PORT);
                     remote_addr.sin_addr.s_addr = inet_addr(REMOTE_IP);
 
-                    return net.init(dbc_version, "", port, node);
+                    return net.init(dbc_version, "192.168.43.156", port, node);
                 }
 
                 inline uint32_t reset(const uint16_t dbc_version, const uint16_t port){
-                    return net.reset(dbc_version, "", port, type);
+                    return net.reset(dbc_version, "192.168.43.156", port, type);
                 }
 
                 inline uint32_t shutdown(){

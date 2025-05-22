@@ -58,7 +58,9 @@ uint32_t NetworkHandler::stop(){
 }
 
 void NetworkHandler::thread(){
+    using namespace std::chrono_literals;
     while (!stop_thr){
+        std::this_thread::sleep_for(1ms);
 		std::unique_lock<std::mutex> lk(thr_mtx);
 
         std::vector<RecvPacket> packets;
