@@ -33,18 +33,6 @@ void declare_msgwrap(py::module& m, const std::string& prefix){
 }
 
 PYBIND11_MODULE(udpcanpy, m){
-
-    /*py::class_<std::map<std::string, std::any>>(m, "AnyMap", py::module_local())
-        .def(py::init<>());
-
-    py::class_<udpcan::internal::Bitarray, std::shared_ptr<udpcan::internal::Bitarray> >(m, "Bitarray", py::module_local())
-        .def(py::init<uint32_t>());
-
-    py::class_<udpcan::internal::CanDatabase, std::shared_ptr<udpcan::internal::CanDatabase> >(m, "CanDatabase", py::module_local())
-        .def(py::init<>())
-        .def_readwrite("dbc_version", &udpcan::internal::CanDatabase::dbc_version)
-        .def("encode", &udpcan::internal::CanDatabase::encode);*/
-
     py::class_<udpcan::RemoteControl, std::shared_ptr<udpcan::RemoteControl> >(m, "RemoteControl", py::module_local())
         .def(py::init<>())
         .def_readwrite("l_top", &udpcan::RemoteControl::l_top)
@@ -89,6 +77,7 @@ PYBIND11_MODULE(udpcanpy, m){
 
     py::class_<udpcan::NetworkHandler, std::shared_ptr<udpcan::NetworkHandler> >(m, "NetworkHandler", py::module_local())
         .def(py::init<>())
+        .def("setSubnet", &udpcan::NetworkHandler::setSubnet)
         .def("parse", &udpcan::NetworkHandler::parse)
         .def("init", &udpcan::NetworkHandler::init)
         .def("reset", &udpcan::NetworkHandler::reset)

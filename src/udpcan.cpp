@@ -8,12 +8,38 @@ NetworkHandler::NetworkHandler():
 {
 }
 
+std::string NetworkHandler::getWlanIp(){
+    char buffer[1000];
+    std::string res;
+    std::string ip;
+    FILE* f = popen("ip a", "r");
+    while (fgets(buffer, 1000, f) != nullptr) {
+        res += buffer;
+    }
+    pclose(f);
+
+    char inet[6] = "inet ";
+    size_t inetpos = res.find(inet, 0);
+    while(inetpos != std::string::npos){
+        size_t slash = res.find('/', inetpos);
+        std::string maybeIp = res.substr(inetpos + 5, slash - inetpos - 5);
+        if(maybeIp.starts_with(subnet)){
+            ip = maybeIp;
+            break;
+        }
+
+        inetpos = res.find(inet, slash);
+    }
+
+    return ip;
+}
+
 uint32_t NetworkHandler::parse(const std::string& fn){
     return database.parse(fn);
 }
 
 uint32_t NetworkHandler::init(const int32_t type){
-    return udp.init(database.dbc_version, UDPCAN_PORT, static_cast<NodeType>(type));
+    return udp.init(database.dbc_version, getWlanIp(), UDPCAN_PORT, static_cast<NodeType>(type));
 }
 
 uint32_t NetworkHandler::reset(){

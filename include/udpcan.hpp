@@ -1,6 +1,8 @@
 #pragma once
 #include <thread>
 #include <cstring>
+#include <cstdio>
+#include <iostream>
 
 #include "network.hpp"
 #include "can.hpp"
@@ -23,12 +25,16 @@ namespace udpcan{
 		    std::thread thr;
             std::mutex thr_mtx;
             bool stop_thr;
+            std::string subnet = "192.168.43.";
 
             void thread();
+            std::string getWlanIp();
 
         public:
             NetworkHandler();
             ~NetworkHandler(){};
+
+            void setSubnet(const std::string sn){subnet = sn;}
 
             uint32_t parse(const std::string& fn);
 
