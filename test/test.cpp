@@ -30,6 +30,7 @@ int32_t main(){
 
     udpcan::MessageWrapper<udpcan::RemoteControl>* remotemsg = nh.get<udpcan::RemoteControl>();
     udpcan::MessageWrapper<udpcan::RaspiState>* raspistatemsg = nh.get<udpcan::RaspiState>();
+    udpcan::MessageWrapper<udpcan::NavOdometry>* navodommsg = nh.get<udpcan::NavOdometry>();
 
     bool e_stop = false;
     while(!e_stop){

@@ -4,7 +4,8 @@ using namespace udpcan;
 
 NetworkHandler::NetworkHandler():
     remote_msg(15),
-    raspi_state(30)
+    raspi_state(30),
+    nav_odometry(40)
 {
 }
 
@@ -114,8 +115,13 @@ void NetworkHandler::thread(){
                     });
                 }
                 else if(p.first == raspi_state.getId()){
-                    res = raspi_state.update([&p](RaspiState& remote){
-                        remote.updateFrom(p.second);
+                    res = raspi_state.update([&p](RaspiState& state){
+                        state.updateFrom(p.second);
+                    });
+                }                
+                else if(p.first == nav_odometry.getId()){
+                    res = nav_odometry.update([&p](NavOdometry& odom){
+                        odom.updateFrom(p.second);
                     });
                 }
             }

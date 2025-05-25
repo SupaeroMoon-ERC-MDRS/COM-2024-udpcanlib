@@ -74,6 +74,7 @@ PYBIND11_MODULE(udpcanpy, m){
 
     declare_msgwrap<udpcan::RemoteControl>(m, "RemoteControl");
     declare_msgwrap<udpcan::RaspiState>(m, "RaspiState");
+    declare_msgwrap<udpcan::NavOdometry>(m, "NavOdometry");
 
     py::class_<udpcan::NetworkHandler, std::shared_ptr<udpcan::NetworkHandler> >(m, "NetworkHandler", py::module_local())
         .def(py::init<>())
@@ -89,4 +90,6 @@ PYBIND11_MODULE(udpcanpy, m){
         .def("pushRemoteControl", [](udpcan::NetworkHandler& self){return self.push<udpcan::RemoteControl>();})
         .def("getRaspiState", [](udpcan::NetworkHandler& self){return self.get<udpcan::RaspiState>();})
         .def("pushRaspiState", [](udpcan::NetworkHandler& self){return self.push<udpcan::RaspiState>();});
+        .def("getNavOdometry", [](udpcan::NetworkHandler& self){return self.get<udpcan::NavOdometry>();})
+        .def("pushNavOdometry", [](udpcan::NetworkHandler& self){return self.push<udpcan::NavOdometry>();});
 }
