@@ -156,6 +156,7 @@ namespace udpcan{
         float rpi_temp;
         float rpi_cpu;
         float rpi_mem;
+        float rpi_rssi;
 
         uint32_t updateFrom(const std::map<std::string, std::any>& data){
             try{
@@ -175,6 +176,7 @@ namespace udpcan{
                 rpi_temp = std::any_cast<float>(data.at("rpi_temp"));
                 rpi_cpu = std::any_cast<float>(data.at("rpi_cpu"));
                 rpi_mem = std::any_cast<float>(data.at("rpi_mem"));
+                rpi_rssi = std::any_cast<float>(data.at("rpi_rssi"));
             }
             catch(...){
                 return CAN_E_I_KEYERR;
@@ -200,6 +202,7 @@ namespace udpcan{
             data["rpi_temp"] = rpi_temp;
             data["rpi_cpu"] = rpi_cpu;
             data["rpi_mem"] = rpi_mem;
+            data["rpi_rssi"] = rpi_rssi;
             return CAN_E_SUCCESS;
         }
 
