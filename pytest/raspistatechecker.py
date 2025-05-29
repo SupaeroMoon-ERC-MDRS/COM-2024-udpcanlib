@@ -95,7 +95,7 @@ class RaspiStateChecker:
 
     @staticmethod
     def __process_rssi(raspi_state_msg, rssi_stdio: bytes):
-        raspi_state_msg.rpi_rssi = int(float(rssi_stdio.split(b'\n')[6].split(b": ")[-1].split(b" dBm")[0]))
+        raspi_state_msg.rpi_rssi = int(float(rssi_stdio.split(b'\n')[5].split(b": ")[-1].split(b" dBm")[0]))
 
     def poll(self, raspi_state_msg) -> bool:
         if time_ns() - self.last_polled < RaspiStateChecker.__POLL_INTERVAL:
@@ -148,5 +148,7 @@ if __name__ == '__main__':
     rsc = RaspiStateChecker()
     sleep(1)
     print(rsc.poll(msg))
+    print(msg.rpi_rssi)
     sleep(1)
     print(rsc.poll(msg))
+    print(msg.rpi_rssi)
