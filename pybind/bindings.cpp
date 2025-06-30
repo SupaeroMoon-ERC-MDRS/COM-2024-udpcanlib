@@ -70,7 +70,10 @@ PYBIND11_MODULE(udpcanpy, m){
         .def_readwrite("rpi_ext5v_v", &udpcan::RaspiState::rpi_ext5v_v)
         .def_readwrite("rpi_temp", &udpcan::RaspiState::rpi_temp)
         .def_readwrite("rpi_cpu", &udpcan::RaspiState::rpi_cpu)
-        .def_readwrite("rpi_mem", &udpcan::RaspiState::rpi_mem);
+        .def_readwrite("rpi_mem", &udpcan::RaspiState::rpi_mem)
+        .def_readwrite("rpi_rssi", &udpcan::RaspiState::rpi_rssi)
+        .def_readwrite("rpi_ina_voltage", &udpcan::RaspiState::rpi_ina_voltage)
+        .def_readwrite("rpi_ina_current", &udpcan::RaspiState::rpi_ina_current);
 
     declare_msgwrap<udpcan::RemoteControl>(m, "RemoteControl");
     declare_msgwrap<udpcan::RaspiState>(m, "RaspiState");
