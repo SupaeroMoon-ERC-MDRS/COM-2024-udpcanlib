@@ -108,14 +108,18 @@ uint32_t CanDatabase::encode(const uint8_t id, const std::map<std::string, std::
     std::set<std::string> msg_keys;
     std::set<std::string> in_keys;
 
+    std::cout << "1" << std::endl;
     messages.at(id).getSignalNames(msg_keys);
+    std::cout << "2" << std::endl;
     for(const std::pair<std::string, std::any> p : in){
         in_keys.insert(p.first);
     }
 
     if(msg_keys == in_keys){
         uint32_t res;
+        std::cout << "3" << std::endl;
         CAN_E_FW_IF_ERR(messages.at(id).encode(in, all_out, dbc_version));
+        std::cout << "4" << std::endl;
         return res;
     }
     else{
