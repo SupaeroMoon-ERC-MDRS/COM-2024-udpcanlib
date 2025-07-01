@@ -8,7 +8,6 @@
 #include <cstdint>
 #include <any>
 #include <set>
-#include <iostream>
 #include "definitions.h"
 
 namespace udpcan{
