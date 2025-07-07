@@ -92,7 +92,7 @@ PYBIND11_MODULE(udpcanpy, m){
         .def("getRemoteControl", [](udpcan::NetworkHandler& self){return self.get<udpcan::RemoteControl>();})
         .def("pushRemoteControl", [](udpcan::NetworkHandler& self){return self.push<udpcan::RemoteControl>();})
         .def("getRaspiState", [](udpcan::NetworkHandler& self){return self.get<udpcan::RaspiState>();})
-        .def("pushRaspiState", [](udpcan::NetworkHandler& self){return self.push<udpcan::RaspiState>();});
+        .def("pushRaspiState", [](udpcan::NetworkHandler& self){return self.push<udpcan::RaspiState>();})
         .def("getNavOdometry", [](udpcan::NetworkHandler& self){return self.get<udpcan::NavOdometry>();})
         .def("pushNavOdometry", [](udpcan::NetworkHandler& self){return self.push<udpcan::NavOdometry>();});
 }
