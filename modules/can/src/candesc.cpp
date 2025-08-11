@@ -200,12 +200,6 @@ uint32_t CanMessageDesc::encode(const std::map<std::string, std::any>& in, std::
 
 //////////////////////////////////////////////////////////////////////
 
-// need separate vector signals that are pretty much a copy in terms of holder type determinations
-// except they read a length first then length times the number
-// but not with bitmask, just elementary 8 16 32 64 size numbers
-
-// messages have normal signal maps and vector signal maps. Vector messages are not SG_ but VSG_
-
 CanVectorSignalDesc::CanVectorSignalDesc():num_type_id(ENumType::NU8),name(""){
 
 }
