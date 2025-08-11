@@ -420,3 +420,14 @@ namespace udpcan{
         };
     };
 };
+
+/*
+Possible optimizations
+
+std::pow(2, n) -> (1 << n) but the compiler should know this though
+
+when encoding each signal creates and returns a new Bitarray. 
+instead pass a reference to the main message Bitarray and modify it in place
+
+CanMessageDesc::decode could take the whole received bytes as reference and the stream position instead of a subset copy
+*/
