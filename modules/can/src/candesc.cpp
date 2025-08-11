@@ -109,7 +109,7 @@ uint32_t CanMessageDesc::decode(const std::vector<uint8_t>& message_payload, std
     return res;
 }
 
-uint32_t CanMessageDesc::encode(const std::map<std::string, std::any>& in, std::vector<uint8_t>& out, const uint16_t version) const{
+uint32_t CanMessageDesc::encode(const std::map<std::string, std::any>& in, std::vector<uint8_t>& out) const{
     out.push_back(id);
     if(!signals.empty()){
         Bitarray msg = Bitarray(message_length);

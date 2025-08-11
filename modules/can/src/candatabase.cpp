@@ -115,7 +115,7 @@ uint32_t CanDatabase::encode(const uint8_t id, const std::map<std::string, std::
 
     if(msg_keys == in_keys){
         uint32_t res;
-        CAN_E_FW_IF_ERR(messages.at(id).encode(in, all_out, dbc_version));
+        CAN_E_FW_IF_ERR(messages.at(id).encode(in, all_out));
         return res;
     }
     else{
