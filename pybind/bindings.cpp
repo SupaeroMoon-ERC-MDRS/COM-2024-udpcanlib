@@ -102,5 +102,7 @@ PYBIND11_MODULE(udpcanpy, m){
         .def("getRaspiState", [](udpcan::NetworkHandler& self){return self.get<udpcan::RaspiState>();})
         .def("pushRaspiState", [](udpcan::NetworkHandler& self){return self.push<udpcan::RaspiState>();})
         .def("getNavOdometry", [](udpcan::NetworkHandler& self){return self.get<udpcan::NavOdometry>();})
-        .def("pushNavOdometry", [](udpcan::NetworkHandler& self){return self.push<udpcan::NavOdometry>();});
+        .def("pushNavOdometry", [](udpcan::NetworkHandler& self){return self.push<udpcan::NavOdometry>();})
+        .def("getServoCalibState", [](udpcan::NetworkHandler& self){return self.get<udpcan::ServoCalibState>();})
+        .def("pushServoCalibState", [](udpcan::NetworkHandler& self){return self.push<udpcan::ServoCalibState>();});
 }
