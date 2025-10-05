@@ -252,4 +252,36 @@ namespace udpcan{
 
     };
     #pragma pack(pop)
+
+    #pragma pack(push,1)
+    struct ServoCalibState{
+        uint16_t fl_calib;
+        uint16_t fr_calib;
+        uint16_t rl_calib;
+        uint16_t rr_calib;
+
+        uint32_t updateFrom(const std::map<std::string, std::any>& data){
+            try{
+                fl_calib = std::any_cast<uint16_t>(data.at("fl_calib"));
+                fr_calib = std::any_cast<uint16_t>(data.at("fr_calib"));
+                rl_calib = std::any_cast<uint16_t>(data.at("rl_calib"));
+                rr_calib = std::any_cast<uint16_t>(data.at("rr_calib"));
+            }
+            catch(...){
+                return CAN_E_I_KEYERR;
+            }
+            return CAN_E_SUCCESS;
+        }
+
+        uint32_t saveTo(std::map<std::string, std::any>& data) const{
+            data.clear();
+            data["fl_calib"] = fl_calib;
+            data["fr_calib"] = fr_calib;
+            data["rl_calib"] = rl_calib;
+            data["rr_calib"] = rr_calib;
+            return CAN_E_SUCCESS;
+        }
+
+    };
+    #pragma pack(pop)
 };

@@ -24,6 +24,7 @@ namespace udpcan{
             MessageWrapper<RemoteControl> remote_msg;
             MessageWrapper<RaspiState> raspi_state;
             MessageWrapper<NavOdometry> nav_odometry;
+            MessageWrapper<ServoCalibState> servo_calib_state;
 
             internal::CanDatabase database;
             internal::UDP udp;
@@ -62,6 +63,9 @@ namespace udpcan{
                 if constexpr (std::is_same<T,NavOdometry>::value){
                     return &nav_odometry;
                 }
+                if constexpr (std::is_same<T,ServoCalibState>::value){
+                    return &servo_calib_state;
+                }
             }
 
             template<typename T>
@@ -70,6 +74,7 @@ namespace udpcan{
                 PUSH_MSG(RemoteControl, remote_msg)
                 PUSH_MSG(RaspiState, raspi_state)
                 PUSH_MSG(NavOdometry, nav_odometry)
+                PUSH_MSG(ServoCalibState, servo_calib_state)
                 return res;
             }
 

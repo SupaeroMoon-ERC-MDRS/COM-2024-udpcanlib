@@ -5,7 +5,8 @@ using namespace udpcan;
 NetworkHandler::NetworkHandler():
     remote_msg(15),
     raspi_state(30),
-    nav_odometry(40)
+    nav_odometry(40),
+    servo_calib_state(16)
 {
 }
 
@@ -122,6 +123,11 @@ void NetworkHandler::thread(){
                 else if(p.first == nav_odometry.getId()){
                     res = nav_odometry.update([&p](NavOdometry& odom){
                         odom.updateFrom(p.second);
+                    });
+                }                
+                else if(p.first == servo_calib_state.getId()){
+                    res = servo_calib_state.update([&p](ServoCalibState servo_calb){
+                        servo_calb.updateFrom(p.second);
                     });
                 }
             }

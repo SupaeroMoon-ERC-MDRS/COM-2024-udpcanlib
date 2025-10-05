@@ -75,9 +75,17 @@ PYBIND11_MODULE(udpcanpy, m){
         .def_readwrite("rpi_ina_voltage", &udpcan::RaspiState::rpi_ina_voltage)
         .def_readwrite("rpi_ina_current", &udpcan::RaspiState::rpi_ina_current);
 
+    py::class_<udpcan::ServoCalibState, std::shared_ptr<udpcan::ServoCalibState> >(m, "ServoCalibState", py::module_local())
+        .def(py::init<>())
+        .def_readwrite("fl_calib", &udpcan::ServoCalibState::fl_calib)
+        .def_readwrite("fr_calib", &udpcan::ServoCalibState::fr_calib)
+        .def_readwrite("rl_calib", &udpcan::ServoCalibState::rl_calib)
+        .def_readwrite("rr_calib", &udpcan::ServoCalibState::rr_calib);
+
     declare_msgwrap<udpcan::RemoteControl>(m, "RemoteControl");
     declare_msgwrap<udpcan::RaspiState>(m, "RaspiState");
     declare_msgwrap<udpcan::NavOdometry>(m, "NavOdometry");
+    declare_msgwrap<udpcan::ServoCalibState>(m, "ServoCalibState");
 
     py::class_<udpcan::NetworkHandler, std::shared_ptr<udpcan::NetworkHandler> >(m, "NetworkHandler", py::module_local())
         .def(py::init<>())
