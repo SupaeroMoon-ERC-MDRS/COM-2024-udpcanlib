@@ -126,7 +126,7 @@ void NetworkHandler::thread(){
                     });
                 }                
                 else if(p.first == servo_calib_state.getId()){
-                    res = servo_calib_state.update([&p](ServoCalibState servo_calb){
+                    res = servo_calib_state.update([&p](ServoCalibState& servo_calb){
                         servo_calb.updateFrom(p.second);
                     });
                 }

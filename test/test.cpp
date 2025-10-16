@@ -31,6 +31,7 @@ int32_t main(){
     udpcan::MessageWrapper<udpcan::RemoteControl>* remotemsg = nh.get<udpcan::RemoteControl>();
     udpcan::MessageWrapper<udpcan::RaspiState>* raspistatemsg = nh.get<udpcan::RaspiState>();
     udpcan::MessageWrapper<udpcan::NavOdometry>* navodommsg = nh.get<udpcan::NavOdometry>();
+    udpcan::MessageWrapper<udpcan::ServoCalibState>* calibmsg = nh.get<udpcan::ServoCalibState>();
 
     bool e_stop = false;
     while(!e_stop){
@@ -55,6 +56,15 @@ int32_t main(){
             std::cout << "ThumbLY: " << (uint16_t)remote_view.thumb_left_y << "\n"; // top < bottom
             std::cout << "ThumbRX: " << (uint16_t)remote_view.thumb_right_x << "\n"; // left < right
             std::cout << "ThumbRY: " << (uint16_t)remote_view.thumb_right_y; // top < bottom
+            std::cout << std::endl;
+        });
+
+        res = calibmsg->access([&e_stop](const udpcan::ServoCalibState& calib_view){
+            std::cout << "====================\n";
+            std::cout << "FL calib: " << calib_view.fl_calib << "\n";
+            std::cout << "FR calib: " << calib_view.fr_calib << "\n";
+            std::cout << "RL calib: " << calib_view.rl_calib << "\n";
+            std::cout << "RR calib: " << calib_view.rr_calib;
             std::cout << std::endl;
         });
 
