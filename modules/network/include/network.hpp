@@ -66,7 +66,7 @@ namespace udpcan{
                     if(net.hasPublishers(NodeType::REMOTE)){
                         return NET_E_SUCCESS;
                     }
-                    return net.sendConn("", REMOTE_PORT);
+                    return net.sendConn("", REMOTE_PORT) + net.sendConn(ip, REMOTE_PORT); // for webcontrol
                 }
 
                 inline uint32_t disconnectRemote(){
