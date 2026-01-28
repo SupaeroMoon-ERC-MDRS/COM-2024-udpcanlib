@@ -82,9 +82,29 @@ PYBIND11_MODULE(udpcanpy, m){
         .def_readwrite("rl_calib", &udpcan::ServoCalibState::rl_calib)
         .def_readwrite("rr_calib", &udpcan::ServoCalibState::rr_calib);
 
+    py::class_<udpcan::NavArm, std::shared_ptr<udpcan::NavArm> >(m, "NavArm", py::module_local())
+        .def(py::init<>())
+        .def_readwrite("arm_active", &udpcan::ServoCalibState::arm_active)
+        .def_readwrite("joint_0", &udpcan::ServoCalibState::joint_0)
+        .def_readwrite("joint_1", &udpcan::ServoCalibState::joint_1)
+        .def_readwrite("joint_2", &udpcan::ServoCalibState::joint_2)
+        .def_readwrite("joint_3", &udpcan::ServoCalibState::joint_3);
+
+
+    py::class_<udpcan::NavLocomotion, std::shared_ptr<udpcan::NavLocomotion> >(m, "NavLocomotion", py::module_local())
+        .def(py::init<>())
+        .def_readwrite("odometry", &udpcan::ServoCalibState::odometry)
+        .def_readwrite("motor_fl_target", &udpcan::ServoCalibState::motor_fl_target)
+        .def_readwrite("motor_fr_target", &udpcan::ServoCalibState::motor_fr_target)
+        .def_readwrite("motor_ml_target", &udpcan::ServoCalibState::motor_ml_target)
+        .def_readwrite("motor_mr_target", &udpcan::ServoCalibState::motor_mr_target)
+        .def_readwrite("motor_rl_target", &udpcan::ServoCalibState::motor_rl_target)
+        .def_readwrite("motor_rr_target", &udpcan::ServoCalibState::motor_rr_target);
+
     declare_msgwrap<udpcan::RemoteControl>(m, "RemoteControl");
     declare_msgwrap<udpcan::RaspiState>(m, "RaspiState");
-    declare_msgwrap<udpcan::NavOdometry>(m, "NavOdometry");
+    declare_msgwrap<udpcan::NavArm>(m, "NavArm");
+    declare_msgwrap<udpcan::NavLocomotion>(m, "NavLocomotion");
     declare_msgwrap<udpcan::ServoCalibState>(m, "ServoCalibState");
 
     py::class_<udpcan::NetworkHandler, std::shared_ptr<udpcan::NetworkHandler> >(m, "NetworkHandler", py::module_local())
@@ -101,8 +121,10 @@ PYBIND11_MODULE(udpcanpy, m){
         .def("pushRemoteControl", [](udpcan::NetworkHandler& self){return self.push<udpcan::RemoteControl>();})
         .def("getRaspiState", [](udpcan::NetworkHandler& self){return self.get<udpcan::RaspiState>();})
         .def("pushRaspiState", [](udpcan::NetworkHandler& self){return self.push<udpcan::RaspiState>();})
-        .def("getNavOdometry", [](udpcan::NetworkHandler& self){return self.get<udpcan::NavOdometry>();})
-        .def("pushNavOdometry", [](udpcan::NetworkHandler& self){return self.push<udpcan::NavOdometry>();})
+        .def("getNavArm", [](udpcan::NetworkHandler& self){return self.get<udpcan::NavArm>();})
+        .def("pushNavArm", [](udpcan::NetworkHandler& self){return self.push<udpcan::NavArm>();})
+        .def("getNavLocomotion", [](udpcan::NetworkHandler& self){return self.get<udpcan::NavLocomotion>();})
+        .def("pushNavLocomotion", [](udpcan::NetworkHandler& self){return self.push<udpcan::NavLocomotion>();})
         .def("getServoCalibState", [](udpcan::NetworkHandler& self){return self.get<udpcan::ServoCalibState>();})
         .def("pushServoCalibState", [](udpcan::NetworkHandler& self){return self.push<udpcan::ServoCalibState>();});
 }

@@ -216,9 +216,8 @@ namespace udpcan{
     #pragma pack(pop)
 
     #pragma pack(push,1)
-    struct NavOdometry{
-        float distance;
-        float speed;
+    struct NavArm{
+        bool arm_active;
         float joint_0;
         float joint_1;
         float joint_2;
@@ -226,8 +225,7 @@ namespace udpcan{
 
         uint32_t updateFrom(const std::map<std::string, std::any>& data){
             try{
-                distance = std::any_cast<float>(data.at("distance"));
-                speed = std::any_cast<float>(data.at("speed"));
+                arm_active = (bool)std::any_cast<uint8_t>(data.at("arm_active"));
                 joint_0 = std::any_cast<float>(data.at("joint_0"));
                 joint_1 = std::any_cast<float>(data.at("joint_1"));
                 joint_2 = std::any_cast<float>(data.at("joint_2"));
@@ -241,12 +239,52 @@ namespace udpcan{
 
         uint32_t saveTo(std::map<std::string, std::any>& data) const{
             data.clear();
-            data["distance"] = distance;
-            data["speed"] = speed;
+            data["arm_active"] = arm_active;
             data["joint_0"] = joint_0;
             data["joint_1"] = joint_1;
             data["joint_2"] = joint_2;
             data["joint_3"] = joint_3;
+            return CAN_E_SUCCESS;
+        }
+
+    };
+    #pragma pack(pop)
+
+    #pragma pack(push,1)
+    struct NavLocomotion{
+        float odometry;
+        float motor_fl_target;
+        float motor_fr_target;
+        float motor_ml_target;
+        float motor_mr_target;
+        float motor_rl_target;
+        float motor_rr_target;
+
+        uint32_t updateFrom(const std::map<std::string, std::any>& data){
+            try{
+                odometry = std::any_cast<float>(data.at("odometry"));
+                motor_fl_target = std::any_cast<float>(data.at("motor_fl_target"));
+                motor_fr_target = std::any_cast<float>(data.at("motor_fr_target"));
+                motor_ml_target = std::any_cast<float>(data.at("motor_ml_target"));
+                motor_mr_target = std::any_cast<float>(data.at("motor_mr_target"));
+                motor_rl_target = std::any_cast<float>(data.at("motor_rl_target"));
+                motor_rr_target = std::any_cast<float>(data.at("motor_rr_target"));
+            }
+            catch(...){
+                return CAN_E_I_KEYERR;
+            }
+            return CAN_E_SUCCESS;
+        }
+
+        uint32_t saveTo(std::map<std::string, std::any>& data) const{
+            data.clear();
+            data["odometry"] = odometry;
+            data["motor_fl_target"] = motor_fl_target;
+            data["motor_fr_target"] = motor_fr_target;
+            data["motor_ml_target"] = motor_ml_target;
+            data["motor_mr_target"] = motor_mr_target;
+            data["motor_rl_target"] = motor_rl_target;
+            data["motor_rr_target"] = motor_rr_target;
             return CAN_E_SUCCESS;
         }
 

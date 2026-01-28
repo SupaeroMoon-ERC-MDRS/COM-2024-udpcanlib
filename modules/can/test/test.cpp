@@ -6,21 +6,21 @@ using namespace udpcan::internal;
 
 void basic_test(){
     CanDatabase db;
-    uint32_t res = db.parse("C:\\Users\\Lenovo\\Desktop\\COM-2024\\COM-2024-DBC\\comms.dbc");
+    db.parse("C:\\Users\\Lenovo\\Desktop\\COM-2024\\COM-2024-DBC\\comms.dbc");
     std::vector<std::pair<uint8_t, std::map<std::string, std::any>>> out = {};
     std::vector<uint8_t> in({0x0F,0xAC,0x06,0x07,0x2F,0xAF,0x0F,0x2F,0xAF});
-    res = db.decode(in, out);
+    db.decode(in, out);
 
     std::vector<uint8_t> enc({});
-    res = db.encode(0x0F, out[0].second, enc);
+    db.encode(0x0F, out[0].second, enc);
 
     udpcan::MessageWrapper<udpcan::RemoteControl> rem(15);
-    uint8_t i = rem.getId();
+    rem.getId();
 }
 
 void vector_test(){
     CanDatabase db;
-    uint32_t res = db.parse("..\\test\\test.dbc");
+    db.parse("..\\test\\test.dbc");
 
     std::map<std::string, std::any> in = {};
     in["AsigA"] = (uint8_t)10;
@@ -48,8 +48,8 @@ void vector_test(){
 
     std::vector<uint8_t> enc;
     std::vector<uint8_t> enc2;
-    res = db.encode(0x0F, in, enc);
-    res = db.encode(0x0E, in2, enc2);
+    db.encode(0x0F, in, enc);
+    db.encode(0x0E, in2, enc2);
     std::copy(enc2.cbegin(), enc2.cend(), std::back_inserter(enc));
 
     std::vector<std::pair<uint8_t, std::map<std::string, std::any>>> out = {};
@@ -58,9 +58,9 @@ void vector_test(){
         std::cout << (uint16_t)v << ",";
     }
     std::cout << "]" << std::endl;
-    res = db.decode(enc, out);
+    db.decode(enc, out);
 
-    uint8_t asiga_dec = std::any_cast<uint8_t>(out[0].second["AsigA"]);
+    /*uint8_t asiga_dec = std::any_cast<uint8_t>(out[0].second["AsigA"]);
     uint8_t asigb_dec = std::any_cast<uint8_t>(out[0].second["AsigB"]);
     uint8_t asigc_dec = std::any_cast<uint8_t>(out[0].second["AsigC"]);
     uint8_t asigd_dec = std::any_cast<uint8_t>(out[0].second["AsigD"]);
@@ -72,7 +72,7 @@ void vector_test(){
     uint8_t bsigd_dec = std::any_cast<uint8_t>(out[0].second["BsigD"]);
     std::vector<uint8_t> bsige_dec = std::any_cast<std::vector<uint8_t>>(out[0].second["BsigE"]);
     std::vector<int32_t> bsigf_dec = std::any_cast<std::vector<int32_t>>(out[0].second["BsigF"]);
-    int a = 0;
+    int a = 0;*/
 }
 
 int32_t main(){

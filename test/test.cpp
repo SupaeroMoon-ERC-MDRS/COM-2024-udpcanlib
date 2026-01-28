@@ -30,7 +30,8 @@ int32_t main(){
 
     udpcan::MessageWrapper<udpcan::RemoteControl>* remotemsg = nh.get<udpcan::RemoteControl>();
     udpcan::MessageWrapper<udpcan::RaspiState>* raspistatemsg = nh.get<udpcan::RaspiState>();
-    udpcan::MessageWrapper<udpcan::NavOdometry>* navodommsg = nh.get<udpcan::NavOdometry>();
+    udpcan::MessageWrapper<udpcan::NavArm>* navarm = nh.get<udpcan::NavArm>();
+    udpcan::MessageWrapper<udpcan::NavLocomotion>* navloco = nh.get<udpcan::NavLocomotion>();
     udpcan::MessageWrapper<udpcan::ServoCalibState>* calibmsg = nh.get<udpcan::ServoCalibState>();
 
     bool e_stop = false;
@@ -59,7 +60,7 @@ int32_t main(){
             std::cout << std::endl;
         });
 
-        res = calibmsg->access([&e_stop](const udpcan::ServoCalibState& calib_view){
+        res = calibmsg->access([](const udpcan::ServoCalibState& calib_view){
             std::cout << "====================\n";
             std::cout << "FL calib: " << calib_view.fl_calib << "\n";
             std::cout << "FR calib: " << calib_view.fr_calib << "\n";
