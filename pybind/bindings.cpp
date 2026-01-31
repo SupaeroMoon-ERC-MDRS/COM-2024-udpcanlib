@@ -84,28 +84,34 @@ PYBIND11_MODULE(udpcanpy, m){
 
     py::class_<udpcan::NavArm, std::shared_ptr<udpcan::NavArm> >(m, "NavArm", py::module_local())
         .def(py::init<>())
-        .def_readwrite("arm_active", &udpcan::ServoCalibState::arm_active)
-        .def_readwrite("joint_0", &udpcan::ServoCalibState::joint_0)
-        .def_readwrite("joint_1", &udpcan::ServoCalibState::joint_1)
-        .def_readwrite("joint_2", &udpcan::ServoCalibState::joint_2)
-        .def_readwrite("joint_3", &udpcan::ServoCalibState::joint_3);
+        .def_readwrite("arm_active", &udpcan::NavArm::arm_active)
+        .def_readwrite("joint_0", &udpcan::NavArm::joint_0)
+        .def_readwrite("joint_1", &udpcan::NavArm::joint_1)
+        .def_readwrite("joint_2", &udpcan::NavArm::joint_2)
+        .def_readwrite("joint_3", &udpcan::NavArm::joint_3);
 
 
     py::class_<udpcan::NavLocomotion, std::shared_ptr<udpcan::NavLocomotion> >(m, "NavLocomotion", py::module_local())
         .def(py::init<>())
-        .def_readwrite("odometry", &udpcan::ServoCalibState::odometry)
-        .def_readwrite("motor_fl_target", &udpcan::ServoCalibState::motor_fl_target)
-        .def_readwrite("motor_fr_target", &udpcan::ServoCalibState::motor_fr_target)
-        .def_readwrite("motor_ml_target", &udpcan::ServoCalibState::motor_ml_target)
-        .def_readwrite("motor_mr_target", &udpcan::ServoCalibState::motor_mr_target)
-        .def_readwrite("motor_rl_target", &udpcan::ServoCalibState::motor_rl_target)
-        .def_readwrite("motor_rr_target", &udpcan::ServoCalibState::motor_rr_target);
+        .def_readwrite("odometry", &udpcan::NavLocomotion::odometry)
+        .def_readwrite("motor_fl_target", &udpcan::NavLocomotion::motor_fl_target)
+        .def_readwrite("motor_fr_target", &udpcan::NavLocomotion::motor_fr_target)
+        .def_readwrite("motor_ml_target", &udpcan::NavLocomotion::motor_ml_target)
+        .def_readwrite("motor_mr_target", &udpcan::NavLocomotion::motor_mr_target)
+        .def_readwrite("motor_rl_target", &udpcan::NavLocomotion::motor_rl_target)
+        .def_readwrite("motor_rr_target", &udpcan::NavLocomotion::motor_rr_target);
+
+    py::class_<udpcan::ScienceWeight, std::shared_ptr<udpcan::ScienceWeight> >(m, "ScienceWeight", py::module_local())
+        .def(py::init<>())
+        .def_readwrite("scale_meas", &udpcan::ScienceWeight::scale_meas)
+        .def_readwrite("scale_valid", &udpcan::ScienceWeight::scale_valid);
 
     declare_msgwrap<udpcan::RemoteControl>(m, "RemoteControl");
     declare_msgwrap<udpcan::RaspiState>(m, "RaspiState");
     declare_msgwrap<udpcan::NavArm>(m, "NavArm");
     declare_msgwrap<udpcan::NavLocomotion>(m, "NavLocomotion");
     declare_msgwrap<udpcan::ServoCalibState>(m, "ServoCalibState");
+    declare_msgwrap<udpcan::ScienceWeight>(m, "ScienceWeight");
 
     py::class_<udpcan::NetworkHandler, std::shared_ptr<udpcan::NetworkHandler> >(m, "NetworkHandler", py::module_local())
         .def(py::init<>())
@@ -126,5 +132,7 @@ PYBIND11_MODULE(udpcanpy, m){
         .def("getNavLocomotion", [](udpcan::NetworkHandler& self){return self.get<udpcan::NavLocomotion>();})
         .def("pushNavLocomotion", [](udpcan::NetworkHandler& self){return self.push<udpcan::NavLocomotion>();})
         .def("getServoCalibState", [](udpcan::NetworkHandler& self){return self.get<udpcan::ServoCalibState>();})
-        .def("pushServoCalibState", [](udpcan::NetworkHandler& self){return self.push<udpcan::ServoCalibState>();});
+        .def("pushServoCalibState", [](udpcan::NetworkHandler& self){return self.push<udpcan::ServoCalibState>();})
+        .def("getScienceWeight", [](udpcan::NetworkHandler& self){return self.get<udpcan::ScienceWeight>();})
+        .def("pushScienceWeight", [](udpcan::NetworkHandler& self){return self.push<udpcan::ScienceWeight>();});
 }

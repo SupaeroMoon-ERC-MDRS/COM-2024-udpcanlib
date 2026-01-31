@@ -7,7 +7,8 @@ NetworkHandler::NetworkHandler():
     raspi_state(30),
     nav_arm(41),
     nav_loco(40),
-    servo_calib_state(16)
+    servo_calib_state(16),
+    science_weight(70)
 {
 }
 
@@ -134,6 +135,11 @@ void NetworkHandler::thread(){
                 else if(p.first == servo_calib_state.getId()){
                     res = servo_calib_state.update([&p](ServoCalibState& servo_calb){
                         servo_calb.updateFrom(p.second);
+                    });
+                }                 
+                else if(p.first == science_weight.getId()){
+                    res = science_weight.update([&p](ScienceWeight& sci_weight){
+                        sci_weight.updateFrom(p.second);
                     });
                 }
             }

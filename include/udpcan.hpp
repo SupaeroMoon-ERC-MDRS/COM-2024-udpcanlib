@@ -26,6 +26,7 @@ namespace udpcan{
             MessageWrapper<NavArm> nav_arm;
             MessageWrapper<NavLocomotion> nav_loco;
             MessageWrapper<ServoCalibState> servo_calib_state;
+            MessageWrapper<ScienceWeight> science_weight;
 
             internal::CanDatabase database;
             internal::UDP udp;
@@ -70,6 +71,9 @@ namespace udpcan{
                 if constexpr (std::is_same<T,ServoCalibState>::value){
                     return &servo_calib_state;
                 }
+                if constexpr (std::is_same<T,ScienceWeight>::value){
+                    return &science_weight;
+                }
             }
 
             template<typename T>
@@ -80,6 +84,7 @@ namespace udpcan{
                 PUSH_MSG(NavArm, nav_arm)
                 PUSH_MSG(NavLocomotion, nav_loco)
                 PUSH_MSG(ServoCalibState, servo_calib_state)
+                PUSH_MSG(ScienceWeight, science_weight)
                 return res;
             }
 
