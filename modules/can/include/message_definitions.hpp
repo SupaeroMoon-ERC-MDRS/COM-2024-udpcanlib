@@ -326,12 +326,12 @@ namespace udpcan{
     #pragma pack(push,1)
     struct ScienceWeight{
         uint16_t scale_meas;
-        bool scale_valid;
+        uint8_t scale_valid;
 
         uint32_t updateFrom(const std::map<std::string, std::any>& data){
             try{
                 scale_meas = std::any_cast<uint16_t>(data.at("scale_meas"));
-                scale_valid = (bool)std::any_cast<uint8_t>(data.at("scale_valid"));
+                scale_valid = std::any_cast<uint8_t>(data.at("scale_valid"));
             }
             catch(...){
                 return CAN_E_I_KEYERR;
