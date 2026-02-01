@@ -217,7 +217,7 @@ namespace udpcan{
 
     #pragma pack(push,1)
     struct NavArm{
-        bool arm_active;
+        uint8_t arm_active;
         float joint_0;
         float joint_1;
         float joint_2;
@@ -225,7 +225,7 @@ namespace udpcan{
 
         uint32_t updateFrom(const std::map<std::string, std::any>& data){
             try{
-                arm_active = (bool)std::any_cast<uint8_t>(data.at("arm_active"));
+                arm_active = std::any_cast<uint8_t>(data.at("arm_active"));
                 joint_0 = std::any_cast<float>(data.at("joint_0"));
                 joint_1 = std::any_cast<float>(data.at("joint_1"));
                 joint_2 = std::any_cast<float>(data.at("joint_2"));
